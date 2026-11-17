@@ -1,0 +1,631 @@
+<title>Mapa da Papelada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Public+Sans:wght@400;500;600;800&display=swap">
+<style>
+/* Layout: a filing-desk page. Header with a rubber stamp, a toolbar of filters, then the graph sheet beside a case-file panel, then the full register table. */
+:root {
+  --paper: #e8ece5;
+  --sheet: #f7f8f4;
+  --ink: #18211d;
+  --muted: #56625b;
+  --rule: #c3cbc0;
+  --stamp: #b3252c;
+  --down: #2c6e3a;
+  --balcao: #2b5885;
+  --pessoa: #94570a;
+  --site: #0d6f64;
+  --inicio: #686d74;
+  --absurdo: #7a3ec2;
+  --f-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Courier Prime", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111613; --sheet: #1a211d; --ink: #e5eae4; --muted: #9ba69f; --rule: #35413b;
+    --stamp: #f06a5f; --down: #6cc37b; --balcao: #82b2e2; --pessoa: #e2a556; --site: #4fc3b3;
+    --inicio: #a6abb1; --absurdo: #b88ef2; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111613; --sheet: #1a211d; --ink: #e5eae4; --muted: #9ba69f; --rule: #35413b;
+  --stamp: #f06a5f; --down: #6cc37b; --balcao: #82b2e2; --pessoa: #e2a556; --site: #4fc3b3;
+  --inicio: #a6abb1; --absurdo: #b88ef2; color-scheme: dark;
+}
+html, body { background: var(--paper); color: var(--ink); }
+body { font-family: var(--f-sans); font-size: 15px; line-height: 1.5; }
+.wrap {
+  max-width: 1440px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+  display: grid; gap: 22px;
+}
+.wrap > *, .toolbar > *, .group > * { min-width: 0; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--balcao); outline-offset: 2px; }
+
+/* Header */
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; }
+.head-text { min-width: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--f-mono); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.05; font-weight: 800; letter-spacing: -.02em; margin: 0 0 10px; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); }
+.lede b { color: var(--ink); font-weight: 600; }
+.stamp {
+  font-family: var(--f-mono); font-weight: 700; color: var(--stamp);
+  border: 3px double var(--stamp); border-radius: 6px; padding: 8px 14px;
+  transform: rotate(-5deg); text-align: center; line-height: 1.15; letter-spacing: .06em;
+  text-transform: uppercase; font-size: 13px; user-select: none; margin-right: 8px;
+}
+.stamp strong { display: block; font-size: 30px; letter-spacing: 0; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; }
+.group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.label { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.chip {
+  border: 1px solid var(--rule); background: var(--sheet); border-radius: 999px;
+  padding: 4px 12px; font-size: 13px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+select { border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 5px 8px; font-size: 13px; max-width: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg { width: 11px; height: 11px; display: inline-block; flex: none; }
+.lg.balcao { background: var(--balcao); }
+.lg.pessoa { background: var(--pessoa); border-radius: 50%; }
+.lg.site { background: var(--site); transform: rotate(45deg) scale(.85); }
+.lg.inicio { background: var(--inicio); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.lg.absurdo { border: 2px dashed var(--absurdo); }
+.ln { width: 26px; height: 0; border-top: 2px solid var(--muted); display: inline-block; }
+.ln.alt { border-top-style: dashed; }
+.ln.back { border-top: 2px dotted var(--absurdo); }
+.ln.up { border-color: var(--stamp); }
+.ln.down { border-color: var(--down); }
+
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.toggle input { accent-color: var(--ink); width: 15px; height: 15px; }
+.tg { font-style: normal; font-family: var(--f-mono); font-size: 10px; font-weight: 700; border: 1px solid var(--muted); border-radius: 2px; padding: 0 3px; color: var(--muted); }
+
+/* Stage */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: stretch; }
+@media (max-width: 960px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.graph-box {
+  position: relative; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px;
+  height: clamp(440px, 76vh, 860px); overflow: hidden; min-width: 0;
+}
+#graph { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#graph.dragging { cursor: grabbing; }
+.zoom { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.zoom button {
+  min-width: 34px; height: 34px; padding: 0 10px; border: 1px solid var(--rule); background: var(--sheet);
+  border-radius: 4px; cursor: pointer; font-size: 14px;
+}
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--sheet); padding: 2px 6px; border-radius: 3px; pointer-events: none; }
+
+/* Graph marks */
+.edge path.l { fill: none; stroke: var(--rule); stroke-width: 1.4; }
+.edge.alt path.l { stroke-dasharray: 5 4; }
+.edge.up path.l { stroke: var(--stamp); stroke-width: 2.2; }
+.edge.down path.l { stroke: var(--down); stroke-width: 2.2; }
+.edge.back path.l { stroke: var(--absurdo); stroke-dasharray: 2 4; stroke-width: 1.8; stroke-linecap: round; }
+.edge.trap-on path.l { stroke: var(--absurdo); stroke-width: 2.6; }
+.edge.dim { opacity: .12; }
+.edge.up, .edge.down { opacity: 1; }
+marker path { fill: var(--rule); }
+#m-up path { fill: var(--stamp); }
+#m-down path { fill: var(--down); }
+.node { cursor: pointer; }
+.node rect.card { fill: var(--sheet); stroke: var(--rule); stroke-width: 1.2; }
+.node.t-balcao rect.card { fill: color-mix(in srgb, var(--balcao) 9%, var(--sheet)); }
+.node.t-pessoa rect.card { fill: color-mix(in srgb, var(--pessoa) 11%, var(--sheet)); }
+.node.t-site rect.card { fill: color-mix(in srgb, var(--site) 10%, var(--sheet)); }
+.node.t-inicio rect.card { fill: color-mix(in srgb, var(--inicio) 14%, var(--sheet)); }
+.node.absurdo rect.card { stroke: var(--absurdo); stroke-dasharray: 5 3; stroke-width: 2; }
+.node.final rect.card { stroke: var(--stamp); stroke-width: 3; }
+.node .glyph.balcao { fill: var(--balcao); }
+.node .glyph.pessoa { fill: var(--pessoa); }
+.node .glyph.site { fill: var(--site); }
+.node .glyph.inicio { fill: var(--inicio); }
+.node text { fill: var(--ink); }
+.node text.code { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted); letter-spacing: .04em; }
+.node text.name { font-family: var(--f-sans); font-size: 12.5px; font-weight: 600; }
+.node text.loc { font-family: var(--f-sans); font-size: 10.5px; fill: var(--muted); }
+.node text.flag { font-family: var(--f-mono); font-size: 10px; font-weight: 700; fill: var(--absurdo); letter-spacing: .06em; }
+.node.final text.flag { fill: var(--stamp); }
+.node .ptag rect { fill: none; stroke: var(--muted); stroke-width: 1; }
+.node .ptag text { font-family: var(--f-mono); font-size: 9.5px; font-weight: 700; fill: var(--muted); }
+.node:hover rect.card, .node:focus-visible rect.card { stroke: var(--ink); }
+.node:focus { outline: none; }
+.node.dim { opacity: .2; }
+.node.up rect.card { stroke: var(--stamp); stroke-width: 2.4; }
+.node.down rect.card { stroke: var(--down); stroke-width: 2.4; }
+.node.sel rect.card { stroke: var(--ink); stroke-width: 3.2; }
+
+/* Panel */
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 18px 18px 20px; overflow: auto; min-width: 0; max-height: clamp(440px, 76vh, 860px); }
+@media (max-width: 960px) { .panel { max-height: none; } }
+.panel h2 { font-size: 20px; line-height: 1.2; margin: 2px 0 10px; text-wrap: balance; }
+.panel h3 { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 700; }
+.panel p { margin: 0 0 8px; }
+.meta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font-size: 14px; margin: 0; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; }
+.note { border-left: 3px solid var(--rule); padding: 2px 0 2px 10px; color: var(--ink); font-size: 14px; }
+.reqs { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.reqs li { font-size: 14px; }
+.trap { font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: var(--absurdo); border: 1px dashed var(--absurdo); border-radius: 2px; padding: 0 4px; text-transform: uppercase; letter-spacing: .05em; }
+.or { font-family: var(--f-mono); font-size: 12px; color: var(--stamp); font-weight: 700; margin: 0 4px; }
+.link { background: none; border: 0; padding: 0; color: var(--balcao); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; text-align: left; font-size: 14px; }
+.count { font-family: var(--f-mono); color: var(--muted); font-size: 13px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 6px; }
+.stat { border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; }
+.stat b { display: block; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: 12px; color: var(--muted); }
+.back { margin-bottom: 8px; }
+.pill { display: inline-block; font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border: 1.5px solid currentColor; border-radius: 3px; padding: 0 5px; margin-right: 6px; vertical-align: 2px; }
+.pill.absurdo { color: var(--absurdo); }
+.pill.final { color: var(--stamp); }
+.pill.t-balcao { color: var(--balcao); }
+.pill.t-pessoa { color: var(--pessoa); }
+.pill.t-site { color: var(--site); }
+.pill.t-inicio { color: var(--inicio); }
+
+/* Register */
+section h2.sec { font-size: 24px; margin: 8px 0 4px; letter-spacing: -.01em; }
+section p.sec-sub { margin: 0 0 12px; color: var(--muted); max-width: 70ch; }
+.table-box { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 14px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+tr.phase-row td { background: var(--paper); font-weight: 700; font-size: 13px; }
+tr.row { cursor: pointer; }
+tr.row:hover td { background: color-mix(in srgb, var(--balcao) 6%, var(--sheet)); }
+td.code { font-family: var(--f-mono); color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.places { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.place { background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px; min-width: 0; }
+.place h4 { margin: 0 0 6px; font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.place ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--muted); }
+.export { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 1px solid var(--ink); background: var(--ink); color: var(--paper); border-radius: 4px; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+#copy-status { font-size: 13px; color: var(--muted); }
+#json-fallback { width: 100%; min-height: 160px; font-family: var(--f-mono); font-size: 12px; background: var(--sheet); color: var(--ink); border: 1px solid var(--rule); border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) { .node rect.card, .edge path.l { transition: stroke .15s, opacity .15s; } .node, .edge { transition: opacity .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="head-text">
+      <p class="eyebrow">Jogo narrativo em Twine · Árvore de requisitos</p>
+      <h1>Mapa da Papelada</h1>
+      <p class="lede">Todos os documentos que o jogador precisa de juntar até à <b>Certidão de Cidadania</b>. Cada seta vai do documento exigido para o documento que o exige. Clica num documento para ver de que precisa e o que desbloqueia.</p>
+    </div>
+    <div class="stamp" aria-hidden="true"><strong id="stamp-n">37</strong>documentos<br>exigidos</div>
+  </header>
+
+  <div class="toolbar">
+    <div class="group" role="group" aria-label="Filtrar por fase">
+      <span class="label">Fase</span>
+      <div class="group" id="phase-chips"></div>
+    </div>
+    <div class="group">
+      <label class="label" for="loc-filter">Local</label>
+      <select id="loc-filter"><option value="all">Todos os locais</option></select>
+    </div>
+    <label class="toggle"><input type="checkbox" id="hub-toggle"> Mostrar setas do Passaporte</label>
+    <div class="legend" aria-label="Legenda">
+      <span><i class="lg balcao"></i>Balcão</span>
+      <span><i class="lg pessoa"></i>Pessoa</span>
+      <span><i class="lg site"></i>Site</span>
+      <span><i class="lg inicio"></i>Já na mala</span>
+      <span><i class="lg absurdo"></i>Absurdo</span>
+      <span><i class="ln"></i>Obrigatório</span>
+      <span><i class="ln alt"></i>Alternativa (basta um)</span>
+      <span><i class="ln back"></i>Alternativa em ciclo (armadilha)</span>
+      <span><i class="ln up"></i>Precisa de</span>
+      <span><i class="ln down"></i>Desbloqueia</span>
+      <span><i class="tg">+PAS</i>Também pede o Passaporte</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="graph-box">
+      <svg id="graph" role="img" aria-label="Grafo de dependências entre documentos">
+        <defs>
+          <marker id="m-base" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="m-up" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="m-down" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+        <g id="viewport"><g id="edges"></g><g id="nodes"></g></g>
+      </svg>
+      <div class="zoom">
+        <button type="button" id="z-in" aria-label="Aproximar">+</button>
+        <button type="button" id="z-out" aria-label="Afastar">−</button>
+        <button type="button" id="z-fit">Ajustar</button>
+      </div>
+      <div class="hint">Arrastar para mover · Ctrl + roda ou pinça para zoom</div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section>
+    <h2 class="sec">Ficha de documentos</h2>
+    <p class="sec-sub">A mesma informação em tabela, por fase. Útil para criar as passagens no Twine. Clica numa linha para a ver no grafo.</p>
+    <div class="table-box">
+      <table>
+        <thead><tr><th>Nº</th><th>Documento</th><th>Onde</th><th>Precisa de</th><th>Validade</th></tr></thead>
+        <tbody id="register"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">Locais da cidade</h2>
+    <p class="sec-sub">Cada local e os documentos que lá se obtêm. Os balcões e as pessoas são sítios físicos; os sites obtêm-se a partir de casa.</p>
+    <div class="places" id="places"></div>
+  </section>
+
+  <section>
+    <h2 class="sec">Dados</h2>
+    <p class="sec-sub">Copia a lista completa em JSON para reutilizar no Twine (por exemplo, num script SugarCube ou Harlowe).</p>
+    <div class="export">
+      <button class="btn" type="button" id="copy-json">Copiar JSON</button>
+      <span id="copy-status" role="status"></span>
+    </div>
+    <textarea id="json-fallback" hidden readonly aria-label="JSON dos documentos"></textarea>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+<script>
+const DATA = {"fases": [{"n": 0, "nome": "Início", "desc": "O que o jogador traz na mala."}, {"n": 1, "nome": "Instalação", "desc": "Morada, número fiscal, banco, trabalho."}, {"n": 2, "nome": "Residência", "desc": "A Autorização de Residência."}, {"n": 3, "nome": "Cidadania", "desc": "O pedido de naturalização."}], "tipos": {"inicio": "Início", "balcao": "Balcão", "pessoa": "Pessoa", "site": "Site"}, "locais": [{"id": "mala", "nome": "Mala de viagem", "tipo": "inicio"}, {"id": "financas", "nome": "Repartição de Finanças", "tipo": "balcao"}, {"id": "banco", "nome": "Banco", "tipo": "balcao"}, {"id": "junta", "nome": "Junta de Freguesia", "tipo": "balcao"}, {"id": "seg_social", "nome": "Segurança Social", "tipo": "balcao"}, {"id": "centro_saude", "nome": "Centro de Saúde", "tipo": "balcao"}, {"id": "migracao", "nome": "Agência de Migração", "tipo": "balcao"}, {"id": "conservatoria", "nome": "Conservatória do Registo Civil", "tipo": "balcao"}, {"id": "notario", "nome": "Notário e Tradutor", "tipo": "balcao"}, {"id": "consulado", "nome": "Consulado do país de origem", "tipo": "balcao"}, {"id": "escola", "nome": "Escola de Línguas", "tipo": "balcao"}, {"id": "loja_foto", "nome": "Loja de Fotografia", "tipo": "balcao"}, {"id": "senhorio", "nome": "Senhorio", "tipo": "pessoa"}, {"id": "empregador", "nome": "Empregador", "tipo": "pessoa"}, {"id": "pensao", "nome": "Pensão Estrela", "tipo": "pessoa"}, {"id": "cafe", "nome": "Café do Bairro", "tipo": "pessoa"}, {"id": "portal_fin", "nome": "Portal das Finanças", "tipo": "site"}, {"id": "portal_cid", "nome": "Portal do Cidadão", "tipo": "site"}, {"id": "portal_marc", "nome": "Portal de Marcações", "tipo": "site"}, {"id": "portal_exame", "nome": "Portal de Exames de Língua", "tipo": "site"}], "documentos": [{"id": "passaporte", "nome": "Passaporte", "local": "mala", "fase": 0, "req": [], "nota": "Válido por mais 7 meses. A Agência de Migração exige 6 meses de validade no dia da entrega: o jogador tem de contar os dias."}, {"id": "cert_nasc", "nome": "Certidão de Nascimento (original)", "local": "mala", "fase": 0, "req": [], "nota": "Escrita na língua do país de origem. Nenhum balcão a aceita assim."}, {"id": "visto", "nome": "Visto de Entrada", "local": "mala", "fase": 0, "req": [], "validade": "120 dias desde a chegada", "nota": "Funciona como relógio do jogo: se expirar antes da Autorização de Residência, o jogador fica em situação irregular."}, {"id": "fotos", "nome": "Fotografias tipo passe (6)", "local": "loja_foto", "fase": 1, "req": [], "nota": "Fundo cinzento-claro, não branco. Cada balcão fica com uma; quando acabam, é preciso tirar outras."}, {"id": "alojamento", "nome": "Declaração de Alojamento Provisório", "local": "pensao", "fase": 1, "req": [["passaporte"]], "nota": "Documento escondido: só a rececionista da pensão sabe que existe. É a saída do primeiro quase-ciclo."}, {"id": "nif", "nome": "Número de Identificação Fiscal (NIF)", "local": "financas", "fase": 1, "req": [["passaporte"], ["visto"]], "nota": "Na primeira visita, \"o sistema está em baixo\"."}, {"id": "iban", "nome": "Comprovativo de Conta Bancária (IBAN)", "local": "banco", "fase": 1, "req": [["passaporte"], ["nif"], ["atestado", "alojamento"]], "nota": "Quase-ciclo 1: o banco pede morada, o Atestado de Residência pede o Contrato de Arrendamento e o senhorio pede esta conta. Só a Declaração de Alojamento Provisório quebra o ciclo."}, {"id": "contrato_arr", "nome": "Contrato de Arrendamento", "local": "senhorio", "fase": 1, "req": [["nif"], ["iban"], ["promessa", "contrato_trab"]], "nota": "O senhorio quer prova de que o jogador vai ter rendimentos."}, {"id": "cartao_cafe", "nome": "Cartão de Cliente do Café (10 carimbos)", "local": "cafe", "fase": 1, "req": [], "absurdo": true, "nota": "Os vizinhos só aceitam ser testemunhas de quem conhecem. Um carimbo por café; obriga a voltar ao café dez vezes."}, {"id": "testemunhas", "nome": "Declaração de Duas Testemunhas", "local": "cafe", "fase": 1, "req": [["cartao_cafe"], ["contrato_arr"]], "nota": "Prática real em várias juntas de freguesia: dois eleitores do bairro confirmam que o jogador lá vive."}, {"id": "atestado", "nome": "Atestado de Residência", "local": "junta", "fase": 1, "req": [["passaporte"], ["contrato_arr"], ["testemunhas"]], "validade": "3 meses"}, {"id": "morada_fiscal", "nome": "Comprovativo de Alteração de Morada Fiscal", "local": "financas", "fase": 1, "req": [["nif"], ["atestado"]], "nota": "Obriga a voltar às Finanças, onde o jogador já esteve."}, {"id": "senha_fin", "nome": "Senha do Portal das Finanças", "local": "portal_fin", "fase": 1, "req": [["morada_fiscal"]], "nota": "É pedida no site mas chega por carta à morada fiscal, 5 dias depois."}, {"id": "promessa", "nome": "Promessa de Contrato de Trabalho", "local": "empregador", "fase": 1, "req": [["passaporte"], ["nif"]]}, {"id": "niss", "nome": "Número de Segurança Social (NISS)", "local": "seg_social", "fase": 1, "req": [["passaporte"], ["nif"], ["promessa", "contrato_trab"]], "nota": "Quase-ciclo 2: o empregador só assina contrato com NISS e a Segurança Social pede contrato. A Promessa de Contrato resolve, mas ninguém o diz ao jogador."}, {"id": "contrato_trab", "nome": "Contrato de Trabalho", "local": "empregador", "fase": 1, "req": [["niss"], ["iban"]]}, {"id": "utente", "nome": "Número de Utente de Saúde", "local": "centro_saude", "fase": 1, "req": [["passaporte"], ["atestado"], ["niss"]]}, {"id": "recibos", "nome": "Recibos de Vencimento (3 meses)", "local": "empregador", "fase": 2, "req": [["contrato_trab"]], "nota": "Obriga o tempo a passar no jogo, enquanto o visto continua a contar."}, {"id": "atestado_medico", "nome": "Atestado Médico", "local": "centro_saude", "fase": 2, "req": [["utente"]], "validade": "90 dias"}, {"id": "cor_cabelo", "nome": "Declaração de Cor Natural do Cabelo", "local": "centro_saude", "fase": 2, "req": [["fotos"], ["utente"]], "absurdo": true, "nota": "Pedida quando a cor do cabelo nas fotografias não coincide com a do passaporte."}, {"id": "seguro", "nome": "Apólice de Seguro de Saúde", "local": "banco", "fase": 2, "req": [["iban"], ["atestado_medico"]]}, {"id": "decl_fin", "nome": "Declaração de Situação Tributária Regularizada", "local": "portal_fin", "fase": 2, "req": [["senha_fin"]], "validade": "3 meses", "nota": "Pedida três vezes ao longo do jogo. Se o jogador reutilizar uma antiga, já expirou."}, {"id": "reg_crim_orig", "nome": "Registo Criminal do País de Origem", "local": "consulado", "fase": 2, "req": [["passaporte"], ["cert_nasc"]], "validade": "90 dias", "nota": "Demora 15 dias. Se for pedido cedo demais, expira antes de ser usado."}, {"id": "marcacao", "nome": "Comprovativo de Marcação", "local": "portal_marc", "fase": 2, "req": [["passaporte"], ["nif"]], "nota": "As vagas abrem à segunda-feira à meia-noite e esgotam em minutos. Cada marcação serve para um só atendimento."}, {"id": "taxa_ar", "nome": "Comprovativo de Pagamento da Taxa", "local": "banco", "fase": 2, "req": [["iban"], ["marcacao"]], "nota": "A referência de pagamento só aparece depois de haver marcação."}, {"id": "autorizacao", "nome": "Autorização de Residência", "local": "migracao", "fase": 2, "req": [["passaporte"], ["visto"], ["fotos"], ["marcacao"], ["taxa_ar"], ["atestado"], ["contrato_trab"], ["recibos"], ["niss"], ["seguro"], ["decl_fin"], ["reg_crim_orig"], ["cor_cabelo"]], "nota": "O grande balcão a meio do jogo. Exige tudo, mas só diz ao jogador um documento em falta de cada vez."}, {"id": "cmd", "nome": "Chave Móvel Digital", "local": "portal_cid", "fase": 3, "req": [["autorizacao"], ["nif"]], "nota": "Só existe para quem já tem título de residência. Abre os serviços online da fase final."}, {"id": "reg_crim_local", "nome": "Registo Criminal Local", "local": "portal_cid", "fase": 3, "req": [["cmd"]], "validade": "90 dias"}, {"id": "cert_apost", "nome": "Certidão de Nascimento Apostilada", "local": "consulado", "fase": 3, "req": [["cert_nasc"], ["passaporte"]], "validade": "6 meses", "nota": "Demora 3 semanas."}, {"id": "cert_trad", "nome": "Certidão de Nascimento Traduzida e Certificada", "local": "notario", "fase": 3, "req": [["cert_apost"]]}, {"id": "reg_crim_trad", "nome": "Registo Criminal de Origem Traduzido", "local": "notario", "fase": 3, "req": [["reg_crim_orig"]], "nota": "Usa o registo da fase 2. Se já expirou, o jogador volta ao consulado."}, {"id": "inscricao_exame", "nome": "Inscrição no Exame de Língua", "local": "portal_exame", "fase": 3, "req": [["passaporte"], ["iban"], ["fotos"]]}, {"id": "exame", "nome": "Certificado de Língua (nível A2)", "local": "escola", "fase": 3, "req": [["inscricao_exame"], ["passaporte"]], "nota": "Bom sítio para um minijogo."}, {"id": "residencia_legal", "nome": "Certidão de Residência Legal", "local": "migracao", "fase": 3, "req": [["autorizacao"], ["marcacao"], ["decl_fin"]], "nota": "Representa os anos de residência exigidos. Pode ser um salto no tempo na história."}, {"id": "sanidade", "nome": "Declaração de Sanidade Burocrática", "local": "centro_saude", "fase": 3, "req": [["utente"], ["atestado_medico"]], "absurdo": true, "nota": "Um psicólogo confirma que o jogador ainda está em condições de preencher formulários. Liga-se diretamente ao tema do stress."}, {"id": "requerimento", "nome": "Requerimento de Naturalização", "local": "conservatoria", "fase": 3, "req": [["passaporte"], ["fotos"], ["cert_trad"], ["reg_crim_trad"], ["reg_crim_local"], ["exame"], ["residencia_legal"], ["decl_fin"], ["sanidade"]]}, {"id": "cidadania", "nome": "Certidão de Cidadania", "local": "conservatoria", "fase": 3, "req": [["requerimento"]], "final": true, "nota": "Objetivo final do jogo."}]};
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const SHORT = { conservatoria: "Conservatória", consulado: "Consulado", portal_exame: "Portal de Exames", financas: "Finanças", centro_saude: "Centro de Saúde", seg_social: "Segurança Social" };
+const docs = DATA.documentos;
+const byId = Object.fromEntries(docs.map(d => [d.id, d]));
+const locById = Object.fromEntries(DATA.locais.map(l => [l.id, l]));
+const usedBy = Object.fromEntries(docs.map(d => [d.id, []]));
+docs.forEach((d, i) => {
+  d.code = String(i + 1).padStart(2, "0");
+  d.tipo = locById[d.local].tipo;
+  d.reqFlat = [...new Set(d.req.flat())];
+});
+docs.forEach(d => d.reqFlat.forEach(r => usedBy[r].push(d.id)));
+const edges = [];
+docs.forEach(d => d.req.forEach(g => g.forEach(r => edges.push({ from: r, to: d.id, alt: g.length > 1 }))));
+// Order in which a player can first obtain each document. An alternative that only
+// becomes available after its target is a trap: it closes a cycle.
+const solved = new Map();
+for (let changed = true; changed;) {
+  changed = false;
+  docs.forEach(d => {
+    if (!solved.has(d.id) && d.req.every(gr => gr.some(r => solved.has(r)))) { solved.set(d.id, solved.size); changed = true; }
+  });
+}
+edges.forEach(e => { e.back = e.alt && solved.get(e.from) > solved.get(e.to); });
+const isBack = (from, to) => edges.some(e => e.back && e.from === from && e.to === to);
+
+function closure(id, next) {
+  const seen = new Set(); const stack = [...next(id)];
+  while (stack.length) { const n = stack.pop(); if (seen.has(n)) continue; seen.add(n); stack.push(...next(n)); }
+  seen.delete(id); return seen;
+}
+const ancestors = id => closure(id, n => byId[n].reqFlat.filter(r => !isBack(r, n)));
+const descendants = id => closure(id, n => usedBy[n].filter(u => !isBack(n, u)));
+
+function wrap(text, max) {
+  const words = text.split(" "); const lines = []; let cur = "";
+  for (const w of words) {
+    if (cur && (cur + " " + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + " " + w : w;
+  }
+  if (cur) lines.push(cur); return lines;
+}
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e); return e;
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const locName = id => locById[id].nome;
+const shortLoc = id => SHORT[id] || locById[id].nome;
+
+/* ---------- Layout & draw ---------- */
+const NODE_W = 188;
+const HUB = "passaporte";
+let showHub = false, g, GW, GH;
+const svg = document.getElementById("graph");
+const vp = document.getElementById("viewport");
+const gEdges = document.getElementById("edges");
+const gNodes = document.getElementById("nodes");
+
+function pathFrom(pts) {
+  let d = `M${pts[0].x},${pts[0].y}`;
+  if (pts.length === 2) return d + ` L${pts[1].x},${pts[1].y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p = pts[i], n = pts[i + 1];
+    const mx = (p.x + n.x) / 2, my = (p.y + n.y) / 2;
+    d += i === pts.length - 2 ? ` Q${p.x},${p.y} ${n.x},${n.y}` : ` Q${p.x},${p.y} ${mx},${my}`;
+  }
+  return d;
+}
+function glyph(tipo, x, y, parent) {
+  const c = "glyph " + tipo;
+  if (tipo === "pessoa") return el("circle", { cx: x + 4.5, cy: y, r: 4.5, class: c }, parent);
+  if (tipo === "site") return el("rect", { x: x + 1, y: y - 3.5, width: 7, height: 7, class: c, transform: `rotate(45 ${x + 4.5} ${y})` }, parent);
+  if (tipo === "inicio") return el("path", { d: `M${x + 4.5},${y - 5} L${x + 9},${y + 4} L${x},${y + 4} z`, class: c }, parent);
+  return el("rect", { x, y: y - 4.5, width: 9, height: 9, class: c }, parent);
+}
+function build() {
+  g = new dagre.graphlib.Graph();
+  g.setGraph({ rankdir: "TB", ranker: "tight-tree", nodesep: 18, ranksep: 46, edgesep: 10, marginx: 24, marginy: 24 });
+  g.setDefaultEdgeLabel(() => ({}));
+  docs.forEach(d => {
+    d.lines = wrap(d.nome, 25);
+    const flagged = d.absurdo || d.final;
+    d.h = 12 + 13 + d.lines.length * 15 + 15 + (flagged ? 13 : 0) + 6;
+    g.setNode(d.id, { width: NODE_W, height: d.h });
+  });
+  edges.forEach(e => { e.drawn = showHub || e.from !== HUB; if (e.drawn && !e.back) g.setEdge(e.from, e.to); });
+  dagre.layout(g);
+  GW = g.graph().width; GH = g.graph().height;
+  gEdges.replaceChildren(); gNodes.replaceChildren();
+  edges.forEach(e => {
+    e.el = e.path = null;
+    if (!e.drawn) return;
+    const grp = el("g", { class: "edge" + (e.alt ? " alt" : "") + (e.back ? " back" : "") }, gEdges);
+    let d;
+    if (e.back) {
+      // trap edge: leaves the right side of the source and loops into the right side of the target
+      const s = g.node(e.from), t = g.node(e.to);
+      const sx = s.x + NODE_W / 2, sy = s.y, tx = t.x + NODE_W / 2 + 6, ty = t.y;
+      const bulge = 70 + Math.min(120, Math.abs(sy - ty) * 0.15);
+      const cx = Math.max(sx, tx) + bulge;
+      d = `M${sx},${sy} C${cx},${sy} ${cx},${ty} ${tx},${ty}`;
+      GW = Math.max(GW, cx + 10);
+    } else d = pathFrom(g.edge(e.from, e.to).points);
+    e.path = el("path", { class: "l", d, "marker-end": "url(#m-base)" }, grp);
+    if (e.back) el("title", {}, grp).textContent = `${byId[e.from].nome} → ${byId[e.to].nome}: alternativa que forma um ciclo`;
+    e.el = grp;
+  });
+  docs.forEach(d => {
+    const n = g.node(d.id);
+    const x0 = n.x - NODE_W / 2, y0 = n.y - d.h / 2;
+    const grp = el("g", {
+      class: `node t-${d.tipo}${d.absurdo ? " absurdo" : ""}${d.final ? " final" : ""}`,
+      tabindex: 0, role: "button", "aria-label": `${d.nome}, ${locName(d.local)}`, "data-id": d.id
+    }, gNodes);
+    el("rect", { class: "card", x: x0, y: y0, width: NODE_W, height: d.h, rx: 3 }, grp);
+    glyph(d.tipo, x0 + 10, y0 + 17, grp);
+    const code = el("text", { class: "code", x: x0 + 25, y: y0 + 21 }, grp);
+    code.textContent = `Nº ${d.code} · FASE ${d.fase}`;
+    if (!showHub && d.reqFlat.includes(HUB)) {
+      const tag = el("g", { class: "ptag" }, grp);
+      el("rect", { x: x0 + NODE_W - 40, y: y0 + 10, width: 32, height: 15, rx: 2 }, tag);
+      const t = el("text", { x: x0 + NODE_W - 24, y: y0 + 21, "text-anchor": "middle" }, tag);
+      t.textContent = "+PAS";
+      el("title", {}, tag).textContent = "Também pede o Passaporte";
+    }
+    let y = y0 + 21;
+    if (d.absurdo || d.final) {
+      y += 13;
+      const f = el("text", { class: "flag", x: x0 + 10, y }, grp);
+      f.textContent = d.final ? "★ OBJETIVO FINAL" : "ABSURDO";
+    }
+    d.lines.forEach(line => { y += 15; const t = el("text", { class: "name", x: x0 + 10, y }, grp); t.textContent = line; });
+    y += 15;
+    const loc = el("text", { class: "loc", x: x0 + 10, y }, grp);
+    loc.textContent = shortLoc(d.local);
+    d.el = grp;
+  });
+}
+build();
+
+/* ---------- Pan & zoom ---------- */
+let T = { x: 0, y: 0, k: 1 }, userMoved = false;
+const apply = () => vp.setAttribute("transform", `translate(${T.x},${T.y}) scale(${T.k})`);
+function fit() {
+  const r = svg.getBoundingClientRect();
+  const k = Math.min(r.width / GW, r.height / GH, 1.1);
+  T = { k, x: (r.width - GW * k) / 2, y: Math.max(8, (r.height - GH * k) / 2) };
+  apply();
+}
+function zoomAt(px, py, f) {
+  const k2 = Math.min(3, Math.max(0.15, T.k * f));
+  T.x = px - (px - T.x) * (k2 / T.k); T.y = py - (py - T.y) * (k2 / T.k); T.k = k2;
+  userMoved = true; apply();
+}
+function centerOn(id) {
+  const n = g.node(id), r = svg.getBoundingClientRect();
+  const k = Math.max(T.k, 0.75);
+  T = { k, x: r.width / 2 - n.x * k, y: r.height / 2 - n.y * k };
+  userMoved = true; apply();
+}
+svg.addEventListener("wheel", e => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  const r = svg.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.01));
+}, { passive: false });
+const ptrs = new Map(); let dragDist = 0, pinch = null;
+svg.addEventListener("pointerdown", e => {
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) dragDist = 0;
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); }
+});
+window.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId);
+  const cur = { x: e.clientX, y: e.clientY };
+  ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 1) {
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    dragDist += Math.abs(dx) + Math.abs(dy);
+    if (dragDist > 4) { svg.classList.add("dragging"); T.x += dx; T.y += dy; userMoved = true; apply(); }
+  } else if (ptrs.size === 2 && pinch) {
+    const [a, b] = [...ptrs.values()];
+    const dist = Math.hypot(a.x - b.x, a.y - b.y);
+    const r = svg.getBoundingClientRect();
+    zoomAt((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, dist / pinch);
+    pinch = dist; dragDist = 99;
+  }
+});
+const endPtr = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (!ptrs.size) svg.classList.remove("dragging"); };
+window.addEventListener("pointerup", endPtr);
+window.addEventListener("pointercancel", endPtr);
+document.getElementById("z-in").onclick = () => { const r = svg.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 1.25); };
+document.getElementById("z-out").onclick = () => { const r = svg.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 0.8); };
+document.getElementById("z-fit").onclick = () => { userMoved = false; fit(); };
+new ResizeObserver(() => { if (!userMoved) fit(); }).observe(svg);
+
+/* ---------- State ---------- */
+let sel = null, fFase = "all", fLoc = "all";
+const matches = d => (fFase === "all" || d.fase === +fFase) && (fLoc === "all" || d.local === fLoc);
+function render() {
+  const up = sel ? ancestors(sel) : new Set(), down = sel ? descendants(sel) : new Set();
+  docs.forEach(d => {
+    const c = d.el.classList;
+    c.toggle("sel", d.id === sel);
+    c.toggle("up", !!sel && up.has(d.id) && d.id !== sel);
+    c.toggle("down", !!sel && down.has(d.id) && !up.has(d.id));
+    const related = !sel || d.id === sel || up.has(d.id) || down.has(d.id);
+    c.toggle("dim", !related || !matches(d));
+  });
+  edges.forEach(e => {
+    if (!e.el) return;
+    const isUp = !!sel && (e.to === sel || up.has(e.to)) && up.has(e.from);
+    const isDown = !!sel && !isUp && (e.from === sel || down.has(e.from)) && down.has(e.to);
+    e.el.classList.toggle("up", isUp);
+    e.el.classList.toggle("down", isDown);
+    const filtered = !matches(byId[e.from]) || !matches(byId[e.to]);
+    const trapOn = !!sel && e.back && (e.from === sel || e.to === sel);
+    e.el.classList.toggle("trap-on", trapOn);
+    e.el.classList.toggle("dim", (!!sel && !isUp && !isDown && !trapOn) || (!sel && filtered));
+    e.path.setAttribute("marker-end", isUp ? "url(#m-up)" : isDown ? "url(#m-down)" : "url(#m-base)");
+  });
+  // bring highlighted edges to front
+  edges.filter(e => e.el && (e.el.classList.contains("up") || e.el.classList.contains("down"))).forEach(e => gEdges.appendChild(e.el));
+  renderPanel(up, down);
+}
+function select(id, center) { sel = id; render(); if (id && center) centerOn(id); }
+
+const docLink = id => `<button type="button" class="link" data-go="${id}">${esc(byId[id].nome)}</button>`;
+const typePill = d => `<span class="pill t-${d.tipo}">${esc(DATA.tipos[d.tipo])}</span>`;
+function renderPanel(up, down) {
+  const p = document.getElementById("panel");
+  if (!sel) {
+    const indeg = docs.map(d => [d.id, usedBy[d.id].length]).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const absurd = docs.filter(d => d.absurdo);
+    p.innerHTML = `
+      <p class="eyebrow">Resumo</p>
+      <h2>Do passaporte à cidadania</h2>
+      <div class="stats">
+        <div class="stat"><b>${docs.length}</b><span>documentos</span></div>
+        <div class="stat"><b>${docs.filter(d => d.fase > 0).length}</b><span>por obter</span></div>
+        <div class="stat"><b>${DATA.locais.length - 1}</b><span>locais</span></div>
+      </div>
+      <h3>Os mais pedidos</h3>
+      <ul class="reqs">${indeg.map(([id, n]) => `<li>${docLink(id)} <span class="count">× ${n}</span></li>`).join("")}</ul>
+      <h3>Quase-ciclos</h3>
+      <p>Dois sítios onde cada balcão pede um documento do outro. O jogo só avança com uma alternativa escondida.</p>
+      <ul class="reqs">
+        <li>${docLink("iban")}: banco, morada e senhorio. Resolve-se com a ${docLink("alojamento")}.</li>
+        <li>${docLink("niss")}: contrato e Segurança Social. Resolve-se com a ${docLink("promessa")}.</li>
+      </ul>
+      <h3>Documentos absurdos</h3>
+      <ul class="reqs">${absurd.map(d => `<li>${docLink(d.id)}</li>`).join("")}</ul>
+      <h3>Fases</h3>
+      <ul class="reqs">${DATA.fases.map(f => `<li><b>${f.n}. ${esc(f.nome)}</b>: ${esc(f.desc)} <span class="count">${docs.filter(d => d.fase === f.n).length} doc.</span></li>`).join("")}</ul>`;
+    return;
+  }
+  const d = byId[sel];
+  const reqHtml = d.req.length
+    ? `<ul class="reqs">${d.req.map(gr => `<li>${gr.map(r => docLink(r) + (isBack(r, d.id) ? ' <span class="trap">ciclo</span>' : "")).join('<span class="or">OU</span>')}</li>`).join("")}</ul>`
+    : `<p class="count">Nada. ${d.fase === 0 ? "O jogador já o tem." : "Basta ir lá."}</p>`;
+  const usedHtml = usedBy[d.id].length
+    ? `<ul class="reqs">${usedBy[d.id].map(i => `<li>${docLink(i)}</li>`).join("")}</ul>`
+    : `<p class="count">Nenhum: é o objetivo final.</p>`;
+  const usedHtmlMarked = usedHtml.replace(/data-go="([a-z_]+)">([^<]*)<\/button>/g, (m, id, name) => isBack(d.id, id) ? `${m} <span class="trap">ciclo</span>` : m);
+  p.innerHTML = `
+    <button type="button" class="link back" data-go="">← Voltar ao resumo</button>
+    <p class="eyebrow">Nº ${d.code} · Fase ${d.fase} · ${esc(DATA.fases[d.fase].nome)}</p>
+    <h2>${d.final ? '<span class="pill final">Final</span>' : ""}${d.absurdo ? '<span class="pill absurdo">Absurdo</span>' : ""}${esc(d.nome)}</h2>
+    <dl class="meta">
+      <dt>Onde</dt><dd>${typePill(d)}${esc(locName(d.local))}</dd>
+      ${d.validade ? `<dt>Validade</dt><dd>${esc(d.validade)}</dd>` : ""}
+      <dt>A montante</dt><dd>${up.size} documento${up.size === 1 ? "" : "s"} na cadeia</dd>
+    </dl>
+    ${d.nota ? `<h3>Nota de design</h3><p class="note">${esc(d.nota)}</p>` : ""}
+    <h3>Precisa de</h3>${reqHtml}
+    <h3>É pedido por</h3>${usedHtmlMarked}`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (b) { select(b.dataset.go || null, !!b.dataset.go); }
+});
+gNodes.addEventListener("click", e => {
+  const n = e.target.closest(".node"); if (!n || dragDist > 4) return;
+  select(n.dataset.id === sel ? null : n.dataset.id, false);
+});
+gNodes.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const n = e.target.closest(".node"); if (!n) return;
+  e.preventDefault(); select(n.dataset.id, true);
+});
+svg.addEventListener("click", e => { if (!e.target.closest(".node") && dragDist <= 4 && sel) select(null); });
+
+document.getElementById("hub-toggle").addEventListener("change", e => {
+  showHub = e.target.checked; build(); render(); userMoved = false; fit();
+});
+
+/* ---------- Filters ---------- */
+const chips = document.getElementById("phase-chips");
+[["all", "Todas"], ...DATA.fases.map(f => [String(f.n), `${f.n} · ${f.nome}`])].forEach(([v, t]) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = t; b.setAttribute("aria-pressed", v === "all");
+  b.onclick = () => { fFase = v; chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === b)); render(); };
+  chips.appendChild(b);
+});
+const locSel = document.getElementById("loc-filter");
+Object.entries(DATA.tipos).forEach(([tipo, nome]) => {
+  const og = document.createElement("optgroup"); og.label = nome;
+  DATA.locais.filter(l => l.tipo === tipo).forEach(l => { const o = document.createElement("option"); o.value = l.id; o.textContent = l.nome; og.appendChild(o); });
+  locSel.appendChild(og);
+});
+locSel.onchange = () => { fLoc = locSel.value; render(); };
+
+/* ---------- Register & places ---------- */
+const reg = document.getElementById("register");
+reg.innerHTML = DATA.fases.map(f => `<tr class="phase-row"><td colspan="5">Fase ${f.n} · ${esc(f.nome)}: ${esc(f.desc)}</td></tr>` +
+  docs.filter(d => d.fase === f.n).map(d => `<tr class="row" data-row="${d.id}" tabindex="0">
+    <td class="code">${d.code}</td>
+    <td>${d.absurdo ? '<span class="pill absurdo">Absurdo</span>' : ""}${d.final ? '<span class="pill final">Final</span>' : ""}${esc(d.nome)}</td>
+    <td>${typePill(d)}${esc(locName(d.local))}</td>
+    <td>${d.req.length ? d.req.map(gr => gr.map(r => esc(byId[r].nome)).join(' <span class="or">OU</span> ')).join("; ") : "—"}</td>
+    <td>${esc(d.validade || "—")}</td></tr>`).join("")).join("");
+const goRow = tr => { select(tr.dataset.row, false); document.querySelector(".graph-box").scrollIntoView({ behavior: "smooth", block: "start" }); centerOn(tr.dataset.row); };
+reg.addEventListener("click", e => { const tr = e.target.closest("tr.row"); if (tr) goRow(tr); });
+reg.addEventListener("keydown", e => { const tr = e.target.closest("tr.row"); if (tr && e.key === "Enter") goRow(tr); });
+
+document.getElementById("places").innerHTML = DATA.locais.map(l => {
+  const ds = docs.filter(d => d.local === l.id);
+  return `<div class="place"><h4><span class="pill t-${l.tipo}">${esc(DATA.tipos[l.tipo])}</span>${esc(l.nome)}</h4>
+    <ul>${ds.map(d => `<li>${esc(d.nome)}</li>`).join("")}</ul></div>`;
+}).join("");
+
+/* ---------- Export ---------- */
+const jsonText = JSON.stringify(DATA, null, 2);
+document.getElementById("copy-json").addEventListener("click", () => {
+  const status = document.getElementById("copy-status"), ta = document.getElementById("json-fallback");
+  const fallback = () => { ta.value = jsonText; ta.hidden = false; ta.focus(); ta.select(); status.textContent = "Não foi possível copiar automaticamente. O texto está selecionado em baixo."; };
+  try {
+    navigator.clipboard.writeText(jsonText).then(() => { status.textContent = "JSON copiado."; }, fallback);
+  } catch (err) { fallback(); }
+});
+
+document.getElementById("stamp-n").textContent = docs.length;
+render();
+fit();
+</script>

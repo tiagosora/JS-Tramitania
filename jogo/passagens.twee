@@ -1,0 +1,743 @@
+:: StoryTitle
+Tramitânia
+
+
+:: StoryData
+{
+  "ifid": "8E2C4A1B-6F3D-4B7A-9C55-2A7D1E0F3B64",
+  "format": "SugarCube",
+  "format-version": "2.37.3",
+  "start": "Inicio",
+  "tag-colors": {
+    "sistema": "purple",
+    "percurso": "yellow",
+    "servicos": "blue",
+    "pessoas": "orange",
+    "pausas": "green",
+    "fim": "red"
+  },
+  "zoom": 0.6
+}
+
+
+:: StoryInit [sistema] {"position": "100,100", "size": "100,100"}
+<<run setup.initState(State.variables)>>
+<<set $voltar to "Local">>
+
+
+:: StoryCaption [sistema nobr] {"position": "250,100", "size": "100,100"}
+<<if $player>>
+<div class="hud">
+  <div class="hud-row"><span class="hud-k">Hoje</span><span class="hud-v"><<= setup.dayLabel(State.variables)>><br><b><<= setup.clock($t)>></b></span></div>
+  <div class="hud-row"><span class="hud-k"><<= $phase < 3 ? "Visto expira" : "Autorização expira">></span><span @class="'hud-v' + (setup.daysLeft(State.variables) <= 7 ? ' urgente' : '')">em <b><<= setup.daysLeft(State.variables)>></b> dias</span></div>
+  <div class="hud-row hud-col"><span class="hud-k">Stress <b class="hud-num"><<= Math.round($stress)>></b>/100</span>
+    <div @class="'meter' + ($stress >= 85 ? ' alto' : $stress >= 60 ? ' medio' : '')"><span @style="'width:' + Math.round($stress) + '%'"></span></div></div>
+  <div class="hud-row"><span class="hud-k">Dinheiro</span><span class="hud-v"><b><<= setup.eur($money)>></b></span></div>
+  <div class="hud-row"><span class="hud-k">Língua</span><span class="hud-v lingua"><<= "●".repeat($lang) + "○".repeat(3 - $lang)>></span></div>
+  <div class="hud-row"><span class="hud-k">Onde</span><span class="hud-v"><<= setup.PLACES[$here].n>></span></div>
+  <div class="hud-btns">
+    <<if $hasNotebook>><<button "Bloco de notas">><<run setup.openDialog("Bloco de notas", "BlocoNotas")>><</button>><</if>>
+    <<button "Pasta">><<run setup.openDialog("A tua pasta", "Pasta")>><</button>>
+    <<button "Ajuda">><<run setup.openDialog("Como se joga", "Ajuda")>><</button>>
+  </div>
+</div>
+<</if>>
+/* Para o mapa do Twine. Este código também pode levar a: [[Ajuda]] [[BlocoNotas]] [[Pasta]] */
+
+
+:: Inicio [percurso nobr] {"position": "100,325", "size": "100,100"}
+<div class="capa">
+  <p class="eyebrow">Um jogo sobre burocracia e stress</p>
+  <h1 class="titulo">Tramitânia</h1>
+  <p class="lede">Chegas a Burgo, capital da República da Tramitânia, com uma mala, um passaporte e um visto que expira em 45 dias. Para ficar, precisas de uma Autorização de Residência. Para a Autorização, precisas de documentos. Para os documentos, precisas de outros documentos.</p>
+  <p class="lede">Tens três recursos: <b>tempo</b>, <b>dinheiro</b> e <b>calma</b>. Os três acabam.</p>
+  <p class="nota">Uma partida completa demora entre hora e meia e duas horas. O jogo guarda-se no browser: usa o menu «Saves» na barra lateral para continuar mais tarde.</p>
+  <div class="acoes-grandes">
+    <<link [[Começar|Ficha]]>><</link>>
+    <<link "Como se joga">><<run setup.openDialog("Como se joga", "Ajuda")>><</link>>
+  </div>
+</div>
+/* Para o mapa do Twine. Este código também pode levar a: [[Ajuda]] */
+
+
+:: Ficha [percurso nobr] {"position": "250,325", "size": "100,100"}
+<div class="impresso">
+  <p class="impresso-cab">REPÚBLICA DA TRAMITÂNIA · SERVIÇO DE ESTRANGEIROS<br>Impresso Mod. 1/ENT · Ficha de entrada</p>
+  <p>Antes de mais nada, preenche os teus dados. <b>Vais escrevê-los muitas vezes</b>, em todos os pedidos, e têm de ser <b>sempre exatamente iguais</b> a estes.</p>
+  <div class="campo"><label>Nome completo</label><<textbox "_fnome" "">></div>
+  <div class="campo"><label>Idade</label><<textbox "_fidade" "">></div>
+  <div class="campo"><label>Altura (cm)</label><<textbox "_faltura" "">></div>
+  <div class="campo"><label>Estado civil</label><<listbox "_fcivil">><<optionsfrom setup.ESTADOS>><</listbox>></div>
+  <p id="erro" class="erro"></p>
+  <<button "Entregar ficha">>
+    <<set _n to String(_fnome).trim(), _i to Number(_fidade), _a to Number(_faltura)>>
+    <<if _n.length < 2>><<replace "#erro">>Escreve o teu nome.<</replace>>
+    <<elseif !Number.isInteger(_i) || _i < 16 || _i > 99>><<replace "#erro">>A idade tem de ser um número inteiro entre 16 e 99.<</replace>>
+    <<elseif !Number.isInteger(_a) || _a < 100 || _a > 230>><<replace "#erro">>A altura tem de ser em centímetros, entre 100 e 230.<</replace>>
+    <<else>>
+      <<set $player to { nome: _n, idade: String(_i), altura: String(_a), civil: _fcivil }>>
+      <<goto "Chegada">>
+    <</if>>
+  <</button>>
+</div>
+/* Para o mapa do Twine. Este código também pode levar a: [[Chegada]] */
+
+
+:: Chegada [percurso nobr] {"position": "400,325", "size": "100,100"}
+<p class="eyebrow">Dia 1 · segunda · 08:00</p>
+<h1>Burgo</h1>
+<p>O autocarro para num terminal cinzento. Chove aquela chuva miúda que não molha mas cansa. Tens <<= setup.eur($money)>> na carteira, uma mala com o passaporte, a certidão de nascimento e o visto, e uma morada escrita num papel: <i>Pensão Estrela, Rua dos Requerentes, 12</i>.</p>
+<div class="documento">
+  <p class="impresso-cab">VISTO DE PROCURA DE TRABALHO</p>
+  <p>Titular: <b><<= $player.nome>></b>. Válido por <b>45 dias</b>. O titular deve requerer <b>Autorização de Residência</b> na <b>Agência de Migração</b> antes do termo deste visto. Processos incompletos não serão aceites.</p>
+</div>
+<p>Antes de vir, o Sr. Bento, dono de uma padaria em Burgo, prometeu-te trabalho «assim que tiveres os papéis». Ninguém te disse que papéis.</p>
+<p>Na pensão, uma senhora de óculos na ponta do nariz levanta os olhos das palavras cruzadas.</p>
+<p class="fala">«Bem-vindo à Tramitânia, <<= $player.nome.split(" ")[0]>>. Eu sou a Fátima. O quarto é no primeiro andar, 20 euros por noite. E um conselho: aqui nada se resolve à primeira. Nem à segunda.»</p>
+<ul class="acoes"><li><<link [[Entrar na pensão|Local]]>><<set $here to "pensao">><</link>></li></ul>
+
+
+:: Avisos [sistema nobr] {"position": "1000,100", "size": "100,100"}
+<<if $log.length > 0>>
+<div class="avisos">
+<<for _l range $log>><div @class="'aviso aviso-' + _l.type"><<= _l.text>></div><</for>>
+</div>
+<<set $log to []>>
+<</if>>
+
+
+:: Local [percurso nobr] {"position": "700,700", "size": "100,100"}
+<<set $voltar to "Local">>
+<<set _p to setup.PLACES[$here]>>
+<<set _aberto to setup.isOpen(State.variables, $here)>>
+<<include "Avisos">>
+<p class="eyebrow"><<= ({balcao: "Serviço público", pessoa: "Pessoas", casa: "Casa", lazer: "Lazer"})[_p.tipo]>> · <<= setup.hoursLabel($here)>></p>
+<h1><<= _p.n>></h1>
+<p><<= setup.DESC[$here]>></p>
+<<if !_aberto>>
+  <p class="fechado">Fechado. Horário: <<= setup.hoursLabel($here)>>.</p>
+<</if>>
+<ul class="acoes">
+<<if !_aberto and setup.opensLater(State.variables, $here)>>
+  <li><<link `"Esperar à porta até abrir (" + setup.clock(_p.abre) + ")"` "Local">><<run setup.do("waitOpen")>><</link>></li>
+<</if>>
+<<switch $here>>
+<<case "pensao">>
+  <li><<link [[Falar com a Dona Fátima|Fatima]]>><<run setup.do("advance", 15)>><</link>></li>
+  <<if $home is "pensao">><li><<link [[Subir ao quarto|Quarto]]>><</link>></li><</if>>
+<<case "casa">>
+  <li><<link [[Entrar em casa|Quarto]]>><</link>></li>
+<<case "cafe">>
+  <<if _aberto>>
+  <li><<link `"Tomar um café ao balcão (" + setup.eur(setup.CFG.cafePreco) + ", 30 min)"` "Cafe">><</link>></li>
+  <li><<link [[Sentar-te com o Sr. Joaquim e a D. Rosa|Vizinhos]]>><<run setup.do("advance", 15)>><</link>></li>
+  <li><<link [[Usar o wifi do café|Portatil]]>><</link>></li>
+  <</if>>
+<<case "jardim">>
+  <<if _aberto>><li><<link [[Passear pelo jardim (1h30)|Passear]]>><</link>></li><</if>>
+<<case "senhorio">>
+  <<if _aberto>><li><<link [[Conversar com a D. Amélia|Amelia]]>><<run setup.do("advance", 15)>><</link>></li><</if>>
+<<case "empregador">>
+  <<if _aberto>>
+  <li><<link [[Falar com o Sr. Bento|Bento]]>><<run setup.do("advance", 15)>><</link>></li>
+  <<if setup.do("canBiscate")>><li><<link `"Ajudar nas descargas (4 h, +" + setup.eur(setup.CFG.biscateGanho) + ")"` "Biscate">><</link>></li><</if>>
+  <</if>>
+<</switch>>
+<<if _p.tipo is "balcao" and _aberto>>
+  <li><<link [[Tirar senha|Fila]]>><<set $tk to setup.do("takeTicket")>><</link>></li>
+  <li><<link [[Perguntar no balcão de informações o que tratam aqui (10 min)|Info]]>><<set $novos to setup.do("askDocs", $here)>><</link>></li>
+  <<for _id range setup.docsAt(State.variables, $here, true)>><<if $pending[_id] and $pending[_id].ready <= $t>><<capture _id>>
+  <li><<link `"Levantar «" + setup.DOCS[_id].n + "» (10 min)"` "Resposta">><<run setup.do("advance", 10)>><<run setup.do("request", _id)>><</link>></li>
+  <</capture>><</if>><</for>>
+  <<if $here is "centro_saude">>
+    <<if setup.do("canConsult")>><li><<link [[Consulta com o Dr. Tomé, psicólogo (1 h)|Consulta]]>><</link>></li>
+    <<elseif !setup.hasValid(State.variables, "utente")>><li class="indisponivel">O Dr. Tomé só atende quem tem Número de Utente.</li>
+    <<else>><li class="indisponivel">A próxima consulta com o Dr. Tomé só daqui a uns dias (uma por semana).</li><</if>>
+  <</if>>
+  <<if $here is "escola">>
+    <<if $lang < 3>><li><<link `"Aula de língua (2 h, " + setup.eur(setup.CFG.aulaPreco) + ")"` "Aula">><</link>></li><</if>>
+  <</if>>
+<</if>>
+<<if _p.tipo is "pessoa" and _aberto>>
+  <<for _id range setup.docsAt(State.variables, $here, true)>><<capture _id>>
+  <<if !setup.hasValid(State.variables, _id)>>
+  <li><<link `"Pedir: " + setup.DOCS[_id].n` "Resposta">><<run setup.do("advance", 10)>><<run setup.do("request", _id)>><</link>></li>
+  <</if>>
+  <</capture>><</for>>
+<</if>>
+<<if setup.do("canBreathe")>><li class="pausa"><<link [[Parar e respirar fundo (15 min)|Respirar]]>><</link>></li><</if>>
+<li class="sair"><<link [[Ir para outro sítio da cidade|Cidade]]>><</link>></li>
+</ul>
+/* Para o mapa do Twine. Os fins por esgotamento e por prazo podem acontecer em qualquer passo (story.js). Este código também pode levar a: [[Aula]] [[Biscate]] [[Cafe]] [[Fim_deportacao]] [[Fim_esgotamento]] [[Local]] [[Resposta]] */
+
+
+:: Cidade [percurso nobr] {"position": "700,475", "size": "100,100"}
+<<include "Avisos">>
+<p class="eyebrow">Mapa de Burgo · <<= setup.dayLabel(State.variables)>>, <<= setup.clock($t)>></p>
+<h1>Para onde vais?</h1>
+<p class="nota">Cada deslocação demora 30 minutos. Os serviços públicos abrem nos dias úteis, das 09:00 às 16:00.</p>
+<div class="mapa">
+<<set _grupos to [
+  ["Casa", [$home]],
+  ["Serviços públicos", ["financas", "banco", "junta", "seg_social", "centro_saude", "migracao", "conservatoria", "notario", "consulado", "escola", "loja_foto"]],
+  ["Pessoas", ["pensao", "cafe", "senhorio", "empregador"]],
+  ["Lazer", ["jardim"]]
+]>>
+<<if $home is "pensao">><<set _grupos[2][1] to ["cafe", "senhorio", "empregador"]>><</if>>
+<<for _g range _grupos>>
+  <div class="mapa-grupo"><h3><<= _g[0]>></h3><ul>
+  <<for _id range _g[1]>><<capture _id>>
+    <li @class="(setup.isOpen(State.variables, _id, $t + 30) ? 'aberto' : 'fechado') + ($here === _id ? ' aqui' : '')">
+      <<link `setup.PLACES[_id].n` "Local">><<run setup.do("travel", _id)>><</link>>
+      <span class="hora"><<= $here === _id ? "estás aqui" : setup.isOpen(State.variables, _id, $t + 30) ? "aberto" : "fechado">></span>
+    </li>
+  <</capture>><</for>>
+  </ul></div>
+<</for>>
+</div>
+/* Para o mapa do Twine. Este código também pode levar a: [[Local]] */
+
+
+:: Fila [servicos nobr] {"position": "1000,580", "size": "100,100"}
+<<if $tk.kind is "fechado">>
+  <h1>Fechado</h1><p>O serviço já não está a atender. Horário: <<= setup.hoursLabel($here)>>.</p>
+  <ul class="acoes"><li><<link [[Voltar|Local]]>><</link>></li></ul>
+<<else>>
+  <p class="eyebrow"><<= setup.PLACES[$here].n>></p>
+  <div class="senha"><span>A tua senha</span><b>A<<= $ticket>></b></div>
+  <p>No ecrã: <b>A<<= Math.max(1, $ticket - Math.round($tk.min / 4))>></b>. Tempo de espera estimado: cerca de <b><<= $tk.min>> minutos</b>. Uma senha dá direito a <b>um assunto</b>.</p>
+  <<if $stress >= 50>><p class="nota">Sentes o maxilar tenso e a perna a bater no chão.</p><</if>>
+  <ul class="acoes">
+  <<if setup.do("canBreathe")>><li class="pausa"><<link [[Respirar fundo enquanto esperas (sem perder tempo)|Fila]]>><<run setup.do("breatheInQueue")>><</link>></li><</if>>
+  <li><<link "Esperar pela tua vez">><<set _w to setup.do("waitQueue")>><<if _w.kind is "fechou">><<goto "Fechou">><<else>><<goto "Balcao">><</if>><</link>></li>
+  <li class="sair"><<link [[Desistir da senha e sair|Local]]>><<set $ticket to 0>><</link>></li>
+  </ul>
+<</if>>
+/* Para o mapa do Twine. Este código também pode levar a: [[Balcao]] [[Fechou]] */
+
+
+:: Fechou [servicos nobr] {"position": "1180,400", "size": "100,100"}
+<<include "Avisos">>
+<h1>«Já fechámos.»</h1>
+<p>Esperaste <<= $tk.min>> minutos. Quando a tua senha está quase a ser chamada, as luzes dos guichés apagam-se uma a uma. Um segurança abre a porta: «Amanhã há mais.»</p>
+<ul class="acoes"><li><<link [[Sair|Local]]>><</link>></li></ul>
+
+
+:: Balcao [servicos nobr] {"position": "1180,580", "size": "100,100"}
+<<include "Avisos">>
+<<set _npc to setup.PLACES[$here].npc>>
+<p class="eyebrow">Senha A<<= $ticket>> · Guiché <<= 1 + ($ticket % 4)>></p>
+<h1>É a tua vez</h1>
+<p><<= _npc.charAt(0).toUpperCase() + _npc.slice(1)>> olha para ti por cima dos óculos. «Diga.»</p>
+<<set _lista to setup.docsAt(State.variables, $here, true).filter(function (id) { return !setup.hasValid(State.variables, id) && !State.variables.pending[id]; })>>
+<ul class="acoes">
+<<for _id range _lista>><<capture _id>>
+  <li><<link `"Pedir: " + setup.DOCS[_id].n` "Resposta">><<run setup.do("request", _id)>><</link>></li>
+<</capture>><</for>>
+<<if _lista.length is 0>><li class="indisponivel">Não sabes que documentos se tratam aqui.</li><</if>>
+<li><<link [[Perguntar que documentos tratam aqui|Info]]>><<set $ticket to 0>><<set $novos to setup.do("askDocs", $here)>><</link>></li>
+<li class="sair"><<link [[Afinal não é nada, obrigado|Local]]>><<set $ticket to 0>><</link>></li>
+</ul>
+/* Para o mapa do Twine. Este código também pode levar a: [[Resposta]] */
+
+
+:: Info [servicos nobr] {"position": "925,400", "size": "100,100"}
+<<include "Avisos">>
+<h1>Informações</h1>
+<<set _todos to setup.docsAt(State.variables, $here, true).filter(function (id) { return setup.DOCS[id].f > 0; })>>
+<<if _todos.length is 0>>
+  <p>«Aqui? Aqui trata-se de muita coisa. Depende do que precisar.» Não ficas a saber nada de útil.</p>
+<<else>>
+  <p>Num papel fotocopiado, preso com fita-cola ao balcão, lê-se:</p>
+  <ul class="lista-docs">
+  <<for _id range _todos>><li><<= setup.DOCS[_id].n>><<if $novos.includes(_id)>> <span class="novo">novo</span><</if>></li><</for>>
+  </ul>
+  <<if $novos.length > 0>><p class="nota"><<= $hasNotebook ? "Apontas no bloco de notas." : "Tentas decorar. Um bloco de notas dava jeito.">></p><</if>>
+<</if>>
+<ul class="acoes"><li><<link "Continuar">><<goto $voltar>><</link>></li></ul>
+/* Para o mapa do Twine. Este código também pode levar a: [[Local]] */
+
+
+:: Resposta [servicos nobr] {"position": "1375,730", "size": "100,100"}
+<<set _d to setup.DOCS[$res.doc]>>
+<<set _pl to setup.PLACES[_d.at]>>
+<<set _npc to _pl.npc || "o sistema">>
+<<include "Avisos">>
+<<switch $res.kind>>
+<<case "obteve" "levantou">>
+  <div class="carimbo carimbo-ok">Deferido</div>
+  <h1>Conseguiste: <<= _d.n>></h1>
+  <<if _d.absurd>><p>Olhas para o papel durante um bom bocado. Existe mesmo. Tem carimbo e tudo.</p><</if>>
+  <<if $res.doc is "cartao_unico">><p>A partir de agora, o Cartão Único preenche os formulários por ti. Pela primeira vez desde que chegaste, sentes que alguém te poupou trabalho.</p><</if>>
+  <<if $res.doc is "contrato_arr">><p>A D. Amélia entrega-te uma chave presa a um porta-chaves do Benfica de Burgo. Tens casa. Vives lá a partir de hoje.</p><</if>>
+  <<if $res.doc is "contrato_trab">><p>O Sr. Bento aperta-te a mão com farinha. «Começas segunda. Paga-se à sexta.»</p><</if>>
+  <<if setup.DOCS[$res.doc].val>><p class="nota">Válido até <<= setup.dayLabel(State.variables, $inv[$res.doc].exp)>>.</p><</if>>
+<<case "tem">>
+  <h1>Já tens este documento</h1><p>«Então vem cá porquê?» Perdeste a vez por nada.</p>
+<<case "espera">>
+  <h1>Ainda não está pronto</h1><p>«O seu pedido está em processamento.» Fica pronto a <b><<= setup.dateOf(State.variables, $res.ready)>></b>.</p>
+<<case "humor">>
+  <div class="carimbo carimbo-nao">Volte noutro dia</div>
+  <h1>Hoje não</h1><p><<= setup.line(setup.HUMOR, _npc)>></p>
+  <p class="nota">Quanto mais stressado chegas, pior corre o atendimento.</p>
+<<case "lingua">>
+  <div class="carimbo carimbo-nao">Não percebido</div>
+  <h1>Barreira linguística</h1><p><<= setup.line(setup.LINGUA, _npc)>></p>
+  <p class="nota">As aulas na Escola de Línguas tornam isto mais raro.</p>
+<<case "manutencao">>
+  <h1>Erro</h1><p class="ecra"><<= setup.pick(setup.MANUTENCAO)>></p>
+<<case "cedo">>
+  <h1>Ainda não</h1><p>«Isso é só para quem já é residente há cinco anos. Primeiro trate da Autorização de Residência.»</p>
+<<case "falta">>
+  <div class="carimbo carimbo-nao">Indeferido</div>
+  <<set _f to setup.DOCS[$res.falta]>>
+  <<if $res.expirado>>
+    <h1>Documento caducado</h1>
+    <p><<= _npc.charAt(0).toUpperCase() + _npc.slice(1)>> devolve-te um papel. «Este <b><<= _f.n>></b> já não é válido. Tem de pedir um novo.»</p>
+  <<else>>
+    <h1>Falta um documento</h1>
+    <p>«Para isso precisa de <b><<= _f.n>></b>.» <<if _f.at isnot "mala">>Perguntas onde. «Isso trata-se em <b><<= setup.PLACES[_f.at].n>></b>. Próximo!»<</if>></p>
+  <</if>>
+  <p class="nota"><<= $hasNotebook ? "Apontas no bloco de notas." : "Não tens onde apontar. Vais ter de te lembrar.">></p>
+<<case "carimbos">>
+  <h1>Ainda não és da casa</h1><p>A D. Rosa ri-se. «Cartão de cliente? Isso é para quem cá vem todos os dias, filho.» Tens <b><<= $carimbos>></b> de 10 carimbos.</p>
+<<case "recibos">>
+  <h1>Faltam recibos</h1><p>«Preciso de três recibos de vencimento seguidos.» Tens <b><<= Math.min($recibos, 3)>></b>. Os recibos chegam com o salário, à sexta-feira.</p>
+<<case "dinheiro">>
+  <h1>Dinheiro insuficiente</h1><p>A taxa é de <b><<= setup.eur(_d.fee)>></b>. Tens <<= setup.eur($money)>>.</p>
+<<case "formulario">>
+  <h1>Preencha o impresso</h1><p>«Preencha este impresso. Com letra legível. Os dados têm de coincidir com o processo.»</p>
+  <<if _d.fee>><p class="nota">Taxa: <<= setup.eur(_d.fee)>>.</p><</if>>
+  <ul class="acoes"><li><<link [[Preencher o impresso|Formulario]]>><</link>></li></ul>
+<<case "exame">>
+  <h1>Exame de língua</h1><p>Uma sala com doze mesas, um relógio que faz demasiado barulho e uma examinadora. Três perguntas. Precisas de acertar duas.</p>
+  <ul class="acoes"><li><<link [[Começar o exame|Exame]]>><<set $exam to { qs: setup.examQuestions(), i: 0, ok: 0 }>><</link>></li></ul>
+<<case "dados">>
+  <div class="carimbo carimbo-nao">Indeferido</div>
+  <h1>Os dados não coincidem</h1><p>«O campo <b><<= $res.campo>></b> não corresponde ao que consta do seu processo.» O impresso vai para o lixo. Tens de começar de novo, com outra senha.</p>
+<<case "pedido">>
+  <div class="carimbo carimbo-ok">Recebido</div>
+  <h1>Pedido registado</h1><p>«Fica pronto a <b><<= setup.dateOf(State.variables, $res.ready)>></b>. Depois venha cá levantá-lo.»</p>
+<<case "carta">>
+  <div class="carimbo carimbo-ok">Enviado</div>
+  <h1>Pedido feito</h1><p>«A sua <<= _d.n>> será enviada por carta para a morada fiscal, no prazo de dois dias úteis.»</p>
+<<case "chumbou">>
+  <div class="carimbo carimbo-nao">Reprovado</div>
+  <h1>Chumbaste</h1><p>Acertaste <<= $res.certas>> de 3. A inscrição já não é válida: tens de te inscrever outra vez no Portal de Exames.</p>
+<</switch>>
+<<if !["formulario", "exame"].includes($res.kind)>>
+<ul class="acoes">
+  <<if $res.doc is "autorizacao" and ["obteve", "levantou"].includes($res.kind)>>
+    <li><<link [[Continuar|Interludio]]>><</link>></li>
+  <<elseif $res.doc is "cidadania" and ["obteve", "levantou"].includes($res.kind)>>
+    <li><<link [[Continuar|Fim_cidadania]]>><</link>></li>
+  <<else>>
+    <li><<link "Continuar">><<goto `$voltar === "Site" ? "Site" : "Local"`>><</link>></li>
+  <</if>>
+</ul>
+<</if>>
+/* Para o mapa do Twine. Este código também pode levar a: [[Local]] [[Site]] */
+
+
+:: Formulario [servicos nobr] {"position": "1555,580", "size": "100,100"}
+<<set _d to setup.DOCS[$res.doc]>>
+<<set _auto to setup.hasValid(State.variables, "cartao_unico")>>
+<<set _campos to setup.FIELDS.slice()>>
+<<if $stress >= 85 and !_auto>><<set _campos to _campos.shuffle()>><</if>>
+<div @class="'impresso' + ($stress >= 70 && !_auto ? ' tremido' : '')">
+  <p class="impresso-cab">REPÚBLICA DA TRAMITÂNIA · <<= setup.PLACES[_d.at].n.toUpperCase()>><br>Impresso Mod. <<= Object.keys(setup.DOCS).indexOf($res.doc) + 1>>/<<= $res.doc.toUpperCase().slice(0, 4)>> · Pedido de <<= _d.n>></p>
+  <<if _auto>>
+    <p class="nota">O Cartão Único preencheu tudo.</p>
+    <<for _c range _campos>><div class="campo"><label><<= _c.label>></label><div class="preenchido"><<= $player[_c.k]>></div></div><</for>>
+    <<button [[Entregar|Resposta]]>><<run setup.do("submitForm", $res.doc, $player)>><</button>>
+  <<else>>
+    <<if $stress >= 85>><p class="nota">As linhas do impresso parecem mexer-se. Lê com atenção.</p><</if>>
+    <<for _c range _campos>><<capture _c>>
+      <div class="campo"><label><<= _c.label>></label>
+      <<if _c.k is "civil">><<listbox `"_r_" + _c.k`>><<option "(escolher)" "">><<optionsfrom setup.ESTADOS>><</listbox>>
+      <<else>><<textbox `"_r_" + _c.k` "">><</if>></div>
+    <</capture>><</for>>
+    <<button [[Entregar|Resposta]]>>
+      <<run setup.do("submitForm", $res.doc, { nome: _r_nome, idade: _r_idade, altura: _r_altura, civil: _r_civil })>>
+      <</button>>
+  <</if>>
+</div>
+
+
+:: Exame [servicos nobr] {"position": "1555,880", "size": "100,100"}
+<<set _q to setup.EXAM[$exam.qs[$exam.i]]>>
+<p class="eyebrow">Exame de língua · pergunta <<= $exam.i + 1>> de 3</p>
+<h1><<= _q.q>></h1>
+<ul class="acoes">
+<<for _j, _a range _q.a>><<capture _j>>
+  <li><<link _a>>
+    <<if _j is _q.c>><<set $exam.ok++>><</if>>
+    <<set $exam.i++>>
+    <<if $exam.i >= 3>><<run setup.do("examResult", $exam.ok)>><<goto "Resposta">><<else>><<goto "Exame">><</if>>
+  <</link>></li>
+<</capture>><</for>>
+</ul>
+/* Para o mapa do Twine. Este código também pode levar a: [[Exame]] [[Resposta]] */
+
+
+:: Portatil [servicos nobr] {"position": "1000,1075", "size": "100,100"}
+<<set $voltar to "Site">>
+<<include "Avisos">>
+<<if !setup.hasInternet(State.variables)>>
+  <h1>Sem internet</h1><p>Aqui não há rede. Os serviços online usam-se em casa ou no café.</p>
+  <ul class="acoes"><li><<link [[Voltar|Local]]>><</link>></li></ul>
+<<else>>
+  <p class="eyebrow">O teu portátil · <<= setup.PLACES[$here].n>></p>
+  <h1>Serviços online</h1>
+  <p>A bateria tem 23 %. O separador do email tem 14 mensagens por ler.</p>
+  <ul class="acoes">
+  <<for _s range ["portal_fin", "portal_cid", "portal_marc", "portal_exame"]>><<capture _s>>
+    <li><<link `setup.PLACES[_s].n` "Site">><<set $site to _s>><</link>></li>
+  <</capture>><</for>>
+  <li class="sair"><<link [[Fechar o portátil|Local]]>><</link>></li>
+  </ul>
+<</if>>
+/* Para o mapa do Twine. Este código também pode levar a: [[Site]] */
+
+
+:: Site [servicos nobr] {"position": "1180,1225", "size": "100,100"}
+<<set $voltar to "Site">>
+<<include "Avisos">>
+<div class="portal">
+  <p class="portal-url">https&#58;&#47;&#47;www.<<= $site.replace("portal_", "")>>.gov.tr</p>
+  <h1><<= setup.PLACES[$site].n>></h1>
+  <<set _lista to setup.docsAt(State.variables, $site, true).filter(function (id) { return !setup.hasValid(State.variables, id) && !State.variables.pending[id]; })>>
+  <ul class="acoes">
+  <<for _id range _lista>><<capture _id>>
+    <li><<link `"Pedir online: " + setup.DOCS[_id].n + " (20 min)"` "Resposta">><<run setup.do("advance", 20)>><<run setup.do("request", _id)>><</link>></li>
+  <</capture>><</for>>
+  <li><<link [[Explorar o site (10 min)|SiteInfo]]>><<set $novos to setup.do("askDocs", $site)>><<set $here to $here>><</link>></li>
+  <li class="sair"><<link [[Voltar|Portatil]]>><</link>></li>
+  </ul>
+</div>
+/* Para o mapa do Twine. Este código também pode levar a: [[Resposta]] */
+
+
+:: SiteInfo [servicos nobr] {"position": "1375,1375", "size": "100,100"}
+<<set _todos to setup.docsAt(State.variables, $site, true)>>
+<h1>Mapa do site</h1>
+<<if _todos.length is 0>><p>Menus dentro de menus. Ao fim de dez minutos, desistes.</p>
+<<else>><ul class="lista-docs"><<for _id range _todos>><li><<= setup.DOCS[_id].n>><<if $novos.includes(_id)>> <span class="novo">novo</span><</if>></li><</for>></ul><</if>>
+<ul class="acoes"><li><<link [[Continuar|Site]]>><</link>></li></ul>
+
+
+:: Quarto [pausas nobr] {"position": "700,1075", "size": "100,100"}
+<<set $voltar to "Quarto">>
+<<include "Avisos">>
+<<set _m to setup.minuteOfDay($t)>>
+<<if $home is "pensao">>
+  <h1>O teu quarto</h1>
+  <p>Uma cama que range, uma mesa de cabeceira e uma janela para um saguão. Paga-se à noite: <<= setup.eur(setup.CFG.pensaoNoite)>>.</p>
+<<else>>
+  <h1>Casa</h1>
+  <p>O frigorífico faz barulho e a vizinha de cima ouve rádio. É tua.</p>
+<</if>>
+<ul class="acoes">
+<<if $home is "pensao" and !$hasNotebook>><li><<link [[Arrumar as tuas coisas (15 min)|Caderno]]>><</link>></li><</if>>
+<<if setup.do("canSleep")>><li class="pausa"><<link [[Dormir até de manhã|Dormir]]>><</link>></li>
+<<else>><li class="indisponivel">Ainda é cedo para dormir (a partir das 20:00).</li><</if>>
+<<if setup.do("canCall")>><li class="pausa"><<link [[Ligar à família (45 min)|Ligar]]>><</link>></li><</if>>
+<<if setup.do("canBreathe")>><li class="pausa"><<link [[Parar e respirar fundo (15 min)|Respirar]]>><</link>></li><</if>>
+<li><<link [[Abrir o portátil|Portatil]]>><</link>></li>
+<li class="sair"><<link [[Sair|Local]]>><</link>></li>
+</ul>
+
+
+:: Caderno [pausas nobr] {"position": "550,1255", "size": "100,100"}
+<<run setup.do("advance", 15)>>
+<<set $hasNotebook to true>>
+<<run setup.know(State.variables, "nif")>>
+<h1>O caderno da Inês</h1>
+<p>Na gaveta da mesa de cabeceira há um caderno de capa azul. Na primeira página, uma letra redonda: <i>«Se encontraste isto, és o próximo. Boa sorte. — Inês»</i>.</p>
+<p>Lá dentro, notas de alguém que passou pelo mesmo que tu. E muitas páginas em branco.</p>
+<p class="nota">Agora tens um <b>bloco de notas</b> na barra lateral. Cada documento de que ouvires falar fica lá registado, com o sítio onde se trata e o que já sabes que ele exige.</p>
+<ul class="acoes"><li><<link [[Continuar|Quarto]]>><</link>></li></ul>
+
+
+:: Dormir [pausas nobr] {"position": "700,1300", "size": "100,100"}
+<<set _r to setup.do("sleep")>>
+<h1>Bom dia</h1>
+<<if _r.mal>>
+  <p>Não tinhas dinheiro para pagar a noite. A Dona Fátima deixou-te dormir no sofá da receção. Dormiste mal.</p>
+<<elseif _r.agitado>>
+  <p>Dormiste, mas mal. Sonhaste com senhas que nunca chegavam ao teu número. Acordaste às quatro da manhã a pensar em carimbos.</p>
+  <p class="nota">Quando vais para a cama com o stress muito alto (70 ou mais), o sono descansa muito menos. Uma pausa antes de dormir faz diferença.</p>
+<<else>>
+  <p>Dormiste a noite inteira. Acordas com mais paciência para o mundo.</p>
+<</if>>
+<<if _r.pago>><p class="nota">Pagaste <<= setup.eur(_r.pago)>> pela noite.</p><</if>>
+<<include "Avisos">>
+<ul class="acoes"><li><<link [[Levantar-te|Quarto]]>><</link>></li></ul>
+
+
+:: Respirar [pausas nobr] {"position": "880,1255", "size": "100,100"}
+<<run setup.do("breathe")>>
+<h1>Respirar em caixa</h1>
+<div class="caixa-resp" aria-hidden="true"><span></span></div>
+<p>Inspiras durante quatro segundos. Seguras quatro. Expiras quatro. Seguras quatro. Repetes.</p>
+<p class="nota">A respiração em caixa abranda o ritmo cardíaco e ajuda a sair do modo de alarme. Funciona melhor quando se usa cedo, antes de o stress estar no máximo.</p>
+<ul class="acoes"><li><<link "Continuar">><<goto $voltar>><</link>></li></ul>
+/* Para o mapa do Twine. Este código também pode levar a: [[Local]] [[Quarto]] */
+
+
+:: Passear [pausas nobr] {"position": "100,970", "size": "100,100"}
+<<run setup.do("walk")>>
+<h1>Uma volta ao lago</h1>
+<p>Os patos não querem saber de atestados. Dás três voltas ao lago e reparas que estavas a respirar só com a parte de cima do peito.</p>
+<p class="nota">Atividade física leve, mesmo uma caminhada curta, é das formas mais eficazes de baixar o stress.</p>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Ligar [pausas nobr] {"position": "850,1480", "size": "100,100"}
+<<run setup.do("call")>>
+<h1>Ligar para casa</h1>
+<p><<= setup.pick(["A tua mãe pergunta se estás a comer bem. Mentes um bocadinho.", "O teu irmão conta-te uma história ridícula do bairro e ris-te pela primeira vez em dias.", "A tua avó não percebe o que é um NIF, mas diz que tem orgulho em ti."])>></p>
+<p class="nota">Falar com alguém de confiança não resolve o problema, mas reduz a sensação de o enfrentar sozinho.</p>
+<ul class="acoes">
+<li><<link [[Desligar|Quarto]]>><</link>></li>
+<li class="sair"><<link [[Dizer que queres voltar para casa|Regresso]]>><</link>></li>
+</ul>
+
+
+:: Regresso [pausas nobr] {"position": "1030,1525", "size": "100,100"}
+<h1>Voltar?</h1>
+<p>Do outro lado da linha, um silêncio. Depois: «Se é isso que precisas, nós estamos aqui.»</p>
+<p>Se voltares, o jogo acaba.</p>
+<ul class="acoes">
+<li><<link [[Sim, quero voltar para casa|Fim_regresso]]>><</link>></li>
+<li><<link [[Não. Vou continuar|Quarto]]>><</link>></li>
+</ul>
+
+
+:: Cafe [pausas nobr] {"position": "100,730", "size": "100,100"}
+<<set _ok to setup.do("coffee")>>
+<<if _ok>>
+  <h1>Um café</h1>
+  <p>O café é forte e o empregado já sabe como gostas dele. Leva um carimbo no cartão: <b><<= Math.min($carimbos, 10)>></b> de 10.</p>
+  <p class="nota">Pequenas rotinas sociais ajudam a criar raízes. E aqui, ao que parece, também contam como documento.</p>
+<<else>>
+  <h1>Sem trocos</h1><p>Não tens dinheiro nem para um café.</p>
+<</if>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Consulta [pausas nobr] {"position": "280,1075", "size": "100,100"}
+<<run setup.do("consult")>>
+<h1>Dr. Tomé</h1>
+<p>O gabinete tem uma planta verdadeira e uma caixa de lenços. O Dr. Tomé ouve-te durante quase uma hora sem olhar para o relógio.</p>
+<p class="fala">«<<= setup.pick(["O stress não é sinal de fraqueza. É o corpo a avisar que a carga é grande. O truque é ouvi-lo antes de ele gritar.", "Divida o problema. Hoje não precisa de resolver a residência. Precisa só de resolver o próximo papel.", "Durma. Parece óbvio, mas um cérebro cansado vê ameaças em todo o lado.", "Escreva o que tem a fazer. A cabeça não foi feita para guardar listas, foi feita para pensar."])>>»</p>
+<p class="nota">Pedir ajuda a um profissional de saúde mental é uma estratégia legítima, não um último recurso.</p>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Aula [servicos nobr] {"position": "925,880", "size": "100,100"}
+<<set _ok to setup.do("lesson")>>
+<<if _ok>>
+  <h1>Aula de língua</h1>
+  <p>Duas horas de verbos irregulares e vocabulário de repartição: «requerimento», «deferido», «comprovativo». O teu nível sobe para <b><<= $lang>></b> de 3.</p>
+  <p class="nota">Com mais língua, os mal-entendidos nos balcões são menos frequentes.</p>
+<<else>>
+  <h1>Sem aula</h1><p>Não tens dinheiro para a aula.</p>
+<</if>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Biscate [pessoas nobr] {"position": "280,640", "size": "100,100"}
+<<run setup.do("biscate")>>
+<h1>Descargas</h1>
+<p>Quatro horas a carregar sacos de farinha. O Sr. Bento paga-te em notas amarrotadas: <<= setup.eur(setup.CFG.biscateGanho)>>. As costas reclamam.</p>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Fatima [pessoas nobr] {"position": "475,550", "size": "100,100"}
+<h1>Dona Fátima</h1>
+<<if setup.do("hintFatima")>>
+  <p>Contas-lhe a história do banco: pedem morada, a junta pede contrato, a senhoria pede conta no banco.</p>
+  <p class="fala">«Ah, o círculo. Eu fiquei lá presa dois meses. Olha: a pensão pode passar-te uma <b>Declaração de Alojamento Provisório</b>. Os bancos aceitam. Ninguém te diz, porque ninguém sabe.»</p>
+  <p class="nota">Novo documento no bloco de notas: Declaração de Alojamento Provisório (Pensão Estrela).</p>
+<<elseif !$hasNotebook and $home is "pensao">>
+  <p class="fala">«O teu quarto era da Inês. Ela deixava sempre tudo apontado. Se calhar ainda há alguma coisa dela na gaveta.»</p>
+<<else>>
+  <p class="fala">«<<= setup.pick(["Primeiro o NIF, nas Finanças. Sem NIF não és ninguém aqui.", "Vai cedo para as filas. Depois das duas, só sais de lá às quatro.", "Quando ficares preso num círculo, pergunta a quem já passou por ele.", "Não te esqueças de comer. Já vi gente desmaiar na fila da Migração.", "O Sr. Joaquim e a D. Rosa, no café, conhecem toda a gente. Mas só ajudam quem conhecem."])>>»</p>
+<</if>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Bento [pessoas nobr] {"position": "475,730", "size": "100,100"}
+<h1>Sr. Bento</h1>
+<<if setup.do("hintBento")>>
+  <p>Explicas-lhe: a Segurança Social só te dá o NISS com contrato, e ele só te faz contrato com NISS.</p>
+  <p class="fala">«Ai, a eterna dança. Faço-te uma <b>Promessa de Contrato de Trabalho</b>. Com isso dão-te o NISS. A senhoria também costuma aceitar.»</p>
+  <p class="nota">Novo documento no bloco de notas: Promessa de Contrato de Trabalho (Padaria do Sr. Bento).</p>
+<<elseif setup.hasValid(State.variables, "contrato_trab")>>
+  <p class="fala">«Então, como vai a papelada? Olha, hoje sobrou um pão de deus. Leva.»</p>
+<<else>>
+  <p class="fala">«O lugar é teu, palavra de honra. Mas sem os papéis em ordem não te posso contratar. Preciso do teu NISS e de uma conta bancária para o ordenado.»</p>
+  <<run setup.reveal(State.variables, "contrato_trab", "niss")>><<run setup.reveal(State.variables, "contrato_trab", "iban")>>
+  <p class="nota">Apontas: Contrato de Trabalho precisa de NISS e de conta bancária.</p>
+<</if>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Amelia [pessoas nobr] {"position": "475,910", "size": "100,100"}
+<h1>D. Amélia</h1>
+<<if setup.hasValid(State.variables, "contrato_arr")>>
+  <p class="fala">«A renda é à segunda. E nada de pregos nas paredes.»</p>
+<<else>>
+  <p class="fala">«Tenho um T0 livre, sim. Mas não arrendo a qualquer um. Quero ver o seu NIF, uma conta bancária cá do país e prova de que tem trabalho. E duas rendas de caução.»</p>
+  <<run setup.know(State.variables, "contrato_arr")>>
+  <<run setup.reveal(State.variables, "contrato_arr", "nif")>><<run setup.reveal(State.variables, "contrato_arr", "iban")>><<run setup.reveal(State.variables, "contrato_arr", "contrato_trab")>>
+  <p class="nota">Apontas: Contrato de Arrendamento precisa de NIF, conta bancária e contrato de trabalho. Caução: <<= setup.eur(setup.DOCS.contrato_arr.fee)>>.</p>
+<</if>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Vizinhos [pessoas nobr] {"position": "280,820", "size": "100,100"}
+<h1>Sr. Joaquim e D. Rosa</h1>
+<<if setup.hasValid(State.variables, "testemunhas")>>
+  <p class="fala">«Então, já és cidadão?» O Sr. Joaquim ri-se da própria piada.</p>
+<<elseif setup.hasValid(State.variables, "cartao_cafe")>>
+  <p class="fala">«Testemunhas? Claro que sim, és da casa! Mas primeiro precisas de morar em algum lado, não é? Mostra lá o contrato da casa.»</p>
+<<else>>
+  <p>Perguntas se te podem servir de testemunhas para a Junta.</p>
+  <p class="fala">«Testemunhas? Mas nós nem te conhecemos!» A D. Rosa aponta para um cartão de cliente pregado ao balcão. «Quando tiveres o cartão cheio, já és da casa. Aí falamos.»</p>
+  <p class="nota">Tens <<= Math.min($carimbos, 10)>> de 10 carimbos.</p>
+<</if>>
+<<run setup.know(State.variables, "testemunhas")>><<run setup.know(State.variables, "cartao_cafe")>>
+<<run setup.reveal(State.variables, "testemunhas", "cartao_cafe")>><<run setup.reveal(State.variables, "testemunhas", "contrato_arr")>>
+<ul class="acoes"><li><<link [[Continuar|Local]]>><</link>></li></ul>
+
+
+:: Interludio [percurso nobr] {"position": "1300,1075", "size": "100,100"}
+<<run setup.do("interlude")>>
+<p class="eyebrow">Cinco anos depois</p>
+<h1>A vida acontece</h1>
+<p>A Autorização de Residência ficou pendurada na parede durante uma semana, até teres vergonha e a guardares numa pasta.</p>
+<p>Depois, a vida aconteceu. O Sr. Bento deu-te a chave da padaria. O Sr. Joaquim morreu num inverno e a D. Rosa ainda guarda o lugar dele. A Dona Fátima reformou-se e foi viver para a terra. Renovaste o passaporte. Juntaste algum dinheiro. Aprendeste a dizer «deferido» sem sotaque.</p>
+<p>Hoje chegou uma carta da Agência de Migração: a tua Autorização de Residência expira em <b>40 dias</b>. Ou a renovas, com tudo de novo, ou pedes de vez a <b>cidadania</b> na Conservatória do Registo Civil.</p>
+<p class="nota">Os documentos com validade caducaram todos. Os números permanentes (NIF, NISS, Utente, Cartão Único) mantêm-se. As fotografias de há cinco anos já não servem.</p>
+<ul class="acoes"><li><<link [[Começar a última corrida|Local]]>><</link>></li></ul>
+
+
+:: BlocoNotas [sistema nobr] {"position": "400,100", "size": "100,100"}
+<<set _V to State.variables>>
+<<set _ordem to { falta: 0, expirado: 1, espera: 2, tem: 3 }>>
+<<set _ids to Object.keys(setup.DOCS).filter(function (id) { return _V.known[id] && setup.DOCS[id].f > 0; }).sort(function (a, b) { return _ordem[setup.status(_V, a).k] - _ordem[setup.status(_V, b).k]; })>>
+<div class="caderno-notas">
+  <p class="mao">Primeiro o NIF, nas Finanças. Sem NIF não existes.</p>
+  <p class="mao">Eles só dizem UMA coisa que falta de cada vez. Aponta tudo.</p>
+  <p class="mao">Quando tudo andar em círculo, pergunta a quem já passou por isso.</p>
+  <p class="mao">Respira: 4 a inspirar, 4 a segurar, 4 a expirar, 4 a segurar.</p>
+</div>
+<p class="eyebrow">Objetivo: <<= setup.DOCS[$phase < 3 ? "autorizacao" : "cidadania"].n>></p>
+<div class="fichas">
+<<for _id range _ids>>
+  <<set _st to setup.status(_V, _id)>>
+  <div @class="'ficha ficha-' + _st.k">
+    <div class="ficha-cab"><b><<= setup.DOCS[_id].n>></b><span class="estado"><<= _st.txt>></span></div>
+    <div class="ficha-local"><<= setup.PLACES[setup.DOCS[_id].at].n>><<if setup.DOCS[_id].fee>> · <<= setup.eur(setup.DOCS[_id].fee)>><</if>></div>
+    <<set _reqs to Object.keys(_V.rev[_id] || {})>>
+    <<if _reqs.length > 0>><ul class="reqs"><<for _r range _reqs>><li @class="setup.hasValid(_V, _r) ? 'ok' : 'nok'"><<= setup.DOCS[_r].n>></li><</for>></ul><</if>>
+  </div>
+<</for>>
+</div>
+<<if _ids.length is 0>><p>Ainda não tens nada apontado.</p><</if>>
+
+
+:: Pasta [sistema nobr] {"position": "550,100", "size": "100,100"}
+<<set _V to State.variables>>
+<<set _ids to Object.keys($inv).filter(function (id) { return setup.status(_V, id).k is "tem"; })>>
+<p>Documentos válidos que trazes contigo:</p>
+<ul class="pasta">
+<<for _id range _ids>><li><b><<= setup.DOCS[_id].n>></b> <span class="estado"><<= setup.status(_V, _id).txt>></span></li><</for>>
+</ul>
+<<set _esp to Object.keys($pending)>>
+<<if _esp.length > 0>><p>À espera:</p><ul class="pasta"><<for _id range _esp>><li><<= setup.DOCS[_id].n>> <span class="estado"><<= setup.status(_V, _id).txt>></span></li><</for>></ul><</if>>
+<<set _exp to Object.keys($inv).filter(function (id) { return setup.status(_V, id).k is "expirado"; })>>
+<<if _exp.length > 0>><p>Caducados (não servem):</p><ul class="pasta caducados"><<for _id range _exp>><li><<= setup.DOCS[_id].n>></li><</for>></ul><</if>>
+
+
+:: Ajuda [sistema nobr] {"position": "700,100", "size": "100,100"}
+<p><b>Objetivo.</b> Obter a Autorização de Residência antes de o visto expirar (45 dias). Depois de um salto de cinco anos, obter a Certidão de Cidadania em 40 dias.</p>
+<p><b>Documentos.</b> Cada documento pede outros. Os funcionários só dizem <b>um</b> documento em falta de cada vez, e uma senha só dá para um assunto. Alguns documentos caducam; outros demoram dias a ficar prontos.</p>
+<p><b>Formulários.</b> Em cada pedido escreves os teus dados. Têm de ser iguais aos da ficha inicial. O Cartão Único preenche-os por ti.</p>
+<p><b>Stress.</b> Sobe com filas, deslocações e recusas. Com stress alto, os funcionários atendem pior e o sono descansa menos. Aos 100, o jogo acaba. Baixa-o a dormir, respirar, passear, ligar à família, tomar café ou ir a uma consulta de psicologia. Cada pausa custa tempo.</p>
+<p><b>Dinheiro.</b> A família envia dinheiro à segunda-feira. Antes de teres contrato, podes fazer biscates na padaria. Depois, recebes salário à sexta. A pensão custa por noite; a casa, por semana.</p>
+<p><b>Desfechos.</b> Há cinco. Nem todos são derrotas.</p>
+
+
+:: Balanco [fim nobr] {"position": "1990,1000", "size": "100,100"}
+<<set _s to $stats>>
+<div class="balanco">
+  <h2>Balanço</h2>
+  <table>
+    <tr><th>Dias até à Autorização de Residência</th><td><<= _s.dias12 || (Math.floor($t / 1440) + 1)>></td></tr>
+    <<if $phase is 3>><tr><th>Dias na fase da cidadania</th><td><<= Math.floor($t / 1440) - $dayBase + 1>></td></tr><</if>>
+    <tr><th>Horas em filas</th><td><<= (_s.filaMin / 60).toFixed(1).replace(".", ",")>></td></tr>
+    <tr><th>Pedidos recusados</th><td><<= _s.recusas>></td></tr>
+    <tr><th>Vezes sem atendimento (humor, língua, site em baixo)</th><td><<= _s.azar>></td></tr>
+    <tr><th>Formulários preenchidos</th><td><<= _s.formularios>></td></tr>
+    <tr><th>Documentos que caducaram</th><td><<= _s.expirados>></td></tr>
+    <tr><th>Pausas para cuidar de ti</th><td><<= _s.pausas>></td></tr>
+    <tr><th>Stress médio / máximo</th><td><<= setup.avgStress(State.variables)>> / <<= Math.round(_s.maxStress)>></td></tr>
+  </table>
+  <p>Este jogo exagera, mas pouco. Em muitos países, quem imigra passa meses ou anos neste labirinto, muitas vezes numa língua que ainda não domina. O stress que sentiste a jogar é uma fração pequena do real.</p>
+  <p><b>Para levar contigo:</b> o stress tem sinais (tensão, irritação, sono mau) e afeta o desempenho. Dormir, mexer o corpo, respirar com calma, falar com alguém e pedir ajuda profissional são estratégias reais. Funcionam melhor cedo do que tarde.</p>
+  <div class="acoes-grandes"><<link "Jogar de novo">><<run Engine.restart()>><</link>></div>
+</div>
+/* Para o mapa do Twine. Este código também pode levar a: [[Inicio]] */
+
+
+:: Fim_cidadania [fim nobr] {"position": "1780,550", "size": "100,100"}
+<<set _serena to setup.avgStress(State.variables) < 50>>
+<div class="carimbo carimbo-ok grande">Cidadão</div>
+<p class="eyebrow">Desfecho · Cidadania <<= _serena ? "serena" : "exausta">></p>
+<h1><<= _serena ? "Bem-vindo a casa" : "Conseguiste. A que custo?">></h1>
+<<if _serena>>
+  <p>A cerimónia é numa sala com cadeiras de plástico e uma bandeira. Na fila da frente está a D. Rosa, de chapéu. Ao teu lado, uma mulher sorri: é a Inês, a dona do caderno. Juras lealdade à República da Tramitânia. Alguém aplaude cedo demais. Ris-te.</p>
+  <p>Conseguiste sem te perderes pelo caminho: paraste quando era preciso, dormiste, pediste ajuda.</p>
+<<else>>
+  <p>A cerimónia é numa sala com cadeiras de plástico e uma bandeira. Juras lealdade à República da Tramitânia. Recebes um papel com um selo dourado.</p>
+  <p>Sais para a rua e não sentes nada. Estás demasiado cansado para festejar. O papel diz que pertences aqui; o corpo diz que precisa de descansar durante muito tempo.</p>
+<</if>>
+<<include "Balanco">>
+/* Inclui: [[Balanco]] */
+
+
+:: Fim_esgotamento [fim nobr] {"position": "1780,730", "size": "100,100"}
+<div class="carimbo carimbo-nao grande">Esgotamento</div>
+<p class="eyebrow">Desfecho · Esgotamento</p>
+<h1>O corpo disse basta</h1>
+<p>Na fila, a meio de uma manhã igual às outras, o coração dispara e o chão inclina-se. Acordas numa maca do Centro de Saúde. O Dr. Tomé está sentado ao teu lado.</p>
+<p class="fala">«Chama-se esgotamento. Não é fraqueza, é uma carga grande demais durante tempo demais. Os papéis podem esperar. Você não pode.»</p>
+<p class="nota">Se sentes algo parecido na vida real (exaustão constante, insónia, ansiedade que não passa), fala com um médico de família ou com uma linha de apoio psicológico do teu país.</p>
+<<include "Balanco">>
+/* Inclui: [[Balanco]] */
+
+
+:: Fim_deportacao [fim nobr] {"position": "1780,910", "size": "100,100"}
+<div class="carimbo carimbo-nao grande">Prazo expirado</div>
+<p class="eyebrow">Desfecho · Deportação</p>
+<h1>O prazo acabou</h1>
+<<if $phase < 3>>
+  <p>O visto expirou antes de teres a Autorização de Residência. Uma carta registada dá-te dez dias para abandonar o país. A Dona Fátima ajuda-te a fazer a mala e não diz nada, porque não há nada a dizer.</p>
+<<else>>
+  <p>A tua Autorização de Residência expirou antes de a cidadania chegar. Depois de cinco anos de vida em Burgo, estás de novo em situação irregular. A D. Rosa chora no café.</p>
+<</if>>
+<p>Fizeste quase tudo certo. Mas na burocracia, quase não conta.</p>
+<<include "Balanco">>
+/* Inclui: [[Balanco]] */
+
+
+:: Fim_regresso [fim nobr] {"position": "1780,1525", "size": "100,100"}
+<p class="eyebrow">Desfecho · Regresso a casa</p>
+<h1>Voltar também é uma escolha</h1>
+<p>No terminal de autocarros chove a mesma chuva miúda do primeiro dia. Desta vez, não te cansa.</p>
+<p>Desistir de um processo que te estava a destruir não é falhar. Saber quando parar é uma das formas mais difíceis de cuidar de si.</p>
+<<include "Balanco">>
+/* Inclui: [[Balanco]] */
