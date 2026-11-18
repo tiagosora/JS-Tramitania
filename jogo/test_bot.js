@@ -119,7 +119,7 @@ function play(seed, careful, realista) {
   function passTime() {
     const m = S.minuteOfDay(V.t);
     if (m >= 20 * 60 || m < 6 * 60) goHomeSleep();
-    else if (S.canBiscate(V)) { S.travel(V, "empregador"); S.biscate(V); }
+    else if (S.canBiscate(V) && V.money < 150) { S.travel(V, "empregador"); S.biscate(V); }
     else { S.travel(V, "jardim"); S.walk(V); }
   }
 

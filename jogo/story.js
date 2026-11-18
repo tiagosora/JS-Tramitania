@@ -363,7 +363,7 @@ S.lesson = function (V) {
 };
 S.canBiscate = function (V) {
   var m = S.minuteOfDay(V.t);
-  return !S.hasValid(V, "contrato_trab") && V.lastBiscate !== S.day(V.t) && S.weekday(V.t) < 6 && m >= 7 * H && m <= 15 * H;
+  return V.lastBiscate !== S.day(V.t) && S.weekday(V.t) < 6 && m >= 7 * H && m <= 15 * H;
 };
 S.biscate = function (V) {
   if (!S.canBiscate(V)) return false;

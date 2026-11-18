@@ -690,7 +690,7 @@ S.lesson = function (V) {
 };
 S.canBiscate = function (V) {
   var m = S.minuteOfDay(V.t);
-  return !S.hasValid(V, "contrato_trab") && V.lastBiscate !== S.day(V.t) && S.weekday(V.t) < 6 && m >= 7 * H && m <= 15 * H;
+  return V.lastBiscate !== S.day(V.t) && S.weekday(V.t) < 6 && m >= 7 * H && m <= 15 * H;
 };
 S.biscate = function (V) {
   if (!S.canBiscate(V)) return false;
@@ -1598,7 +1598,7 @@ if (typeof Config !== "undefined") {
 &lt;p&gt;&lt;b&gt;Documentos.&lt;/b&gt; Cada documento pede outros. Os funcionários só dizem &lt;b&gt;um&lt;/b&gt; documento em falta de cada vez, e uma senha só dá para um assunto. Alguns documentos caducam; outros demoram dias a ficar prontos.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Formulários.&lt;/b&gt; Em cada pedido escreves os teus dados. Têm de ser iguais aos da ficha inicial. O Cartão Único preenche-os por ti.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Stress.&lt;/b&gt; Sobe com filas, deslocações e recusas. Com stress alto, os funcionários atendem pior e o sono descansa menos. Aos 100, o jogo acaba. Baixa-o a dormir, respirar, passear, ligar à família, tomar café ou ir a uma consulta de psicologia. Cada pausa custa tempo.&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;Dinheiro.&lt;/b&gt; A família envia dinheiro à segunda-feira. Antes de teres contrato, podes fazer biscates na padaria. Depois, recebes salário à sexta. A pensão custa por noite; a casa, por semana.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Dinheiro.&lt;/b&gt; A família envia dinheiro à segunda-feira. Podes sempre fazer biscates na padaria; com contrato, recebes também salário à sexta. A pensão custa por noite; a casa, por semana.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Desfechos.&lt;/b&gt; Há cinco. Nem todos são derrotas.&lt;/p&gt;</tw-passagedata><tw-passagedata pid="39" name="Balanco" tags="fim nobr fora" position="1990,1000" size="100,100">&lt;&lt;set _s to $stats&gt;&gt;
 &lt;div class=&quot;balanco&quot;&gt;
   &lt;h2&gt;Balanço&lt;/h2&gt;
