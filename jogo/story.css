@@ -150,12 +150,13 @@ html[data-outlines] .campo input:focus, html[data-outlines] .campo select:focus 
 .mapa-grupo li.aqui .hora { color: var(--ink); }
 
 /* Respirar */
-.caixa-resp { width: 120px; height: 120px; border: 2px solid var(--ok); position: relative; margin: 1em 0; border-radius: 4px; }
-.caixa-resp span { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--ok); top: -8px; left: -8px; }
+.caixa-resp { float: right; width: 120px; height: 120px; border: 2px solid var(--ok); border-radius: 4px; margin: 12px 18px 12px 30px; display: grid; place-items: center; font: 600 .85rem/1 var(--mono); color: var(--ok); letter-spacing: .08em; }
+.caixa-resp span::after { content: "inspira"; animation: fase 16s steps(1) infinite; }
 @media (prefers-reduced-motion: no-preference) {
-  .caixa-resp span { animation: caixa 16s linear infinite; }
-  @keyframes caixa { 0% { top: -8px; left: -8px; } 25% { top: -8px; left: 110px; } 50% { top: 110px; left: 110px; } 75% { top: 110px; left: -8px; } 100% { top: -8px; left: -8px; } }
+  .caixa-resp { animation: respirar 16s ease-in-out infinite; }
+  @keyframes respirar { 0% { transform: scale(.7); } 25%, 50% { transform: scale(1); } 75%, 100% { transform: scale(.7); } }
 }
+@keyframes fase { 0% { content: "inspira"; } 25% { content: "segura"; } 50% { content: "expira"; } 75% { content: "segura"; } }
 
 /* Diálogos (caderno, definições, gravações); os seletores igualam a especificidade dos do SugarCube */
 #ui-dialog-body { background: var(--sheet); color: var(--ink); border-color: var(--rule); }
