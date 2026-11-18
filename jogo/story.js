@@ -145,7 +145,7 @@ S.DOCS = {
 
 /* ---------- Equilíbrio (afinar aqui) ---------- */
 S.CFG = {
-  visto: 40, prazoFase3: 32,
+  visto: 45, prazoFase3: 40,
   dinheiro: 600, stress: 10,
   viagem: 30, viagemStress: 3,
   filaMin: 30, filaMax: 120, filaStressHora: 6,
