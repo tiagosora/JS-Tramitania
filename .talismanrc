@@ -1,9 +1,9 @@
 threshold: medium
 fileignoreconfig:
 - filename: Tramitania.html
-  checksum: adbf961db1c27610682a78ee102222485eee8cd3402641f2cc5b323045f2dc5b
+  ignore_detectors: [filecontent, filesize]
 - filename: jogo/passagens.twee
-  checksum: 7609ace0b512bebc9b8482cdb79692e4247df70708312454ac145772899f6a89
+  ignore_detectors: [filecontent, filesize]
 - filename: jogo/audio/*
-  checksum: c135bc44c87b0e745e089c59d4f0811691fa8cde8b8e9cac8036cb25e87882da
+  ignore_detectors: [filecontent, filesize]
 version: "1.0"

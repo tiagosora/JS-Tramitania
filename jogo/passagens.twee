@@ -446,6 +446,7 @@ Tramitânia
 <<if $home is "pensao" and !$hasNotebook>><li><<link [[Arrumar as tuas coisas (15 min)|Caderno]]>><</link>></li><</if>>
 <<if setup.do("canSleep")>><li class="pausa"><<link [[Dormir até de manhã|Dormir]]>><</link>></li>
 <<else>><li class="indisponivel">Ainda é cedo para dormir (a partir das 20:00).</li><</if>>
+<<if setup.do("canWeekend")>><li class="pausa"><<link `$home is "casa" ? "Ficar em casa até segunda-feira" : "Ficar na pensão até segunda-feira (" + setup.do("weekendNoites") + (setup.do("weekendNoites") > 1 ? " noites, " : " noite, ") + setup.eur(setup.do("weekendNoites") * setup.CFG.pensaoNoite) + ")"` "FimDeSemana">><</link>></li><</if>>
 <<if setup.do("canCall")>><li class="pausa"><<link [[Ligar à família (45 min)|Ligar]]>><</link>></li><</if>>
 <<if setup.do("canBreathe")>><li class="pausa"><<link [[Parar e respirar fundo (15 min)|Respirar]]>><</link>></li><</if>>
 <li><<link [[Abrir o portátil|Portatil]]>><</link>></li>
@@ -476,6 +477,16 @@ Tramitânia
   <p>Dormiste a noite inteira. Acordas com mais paciência para o mundo.</p>
 <</if>>
 <<if _r.pago>><p class="nota">Pagaste <<= setup.eur(_r.pago)>> pela noite.</p><</if>>
+<<include "Avisos">>
+<ul class="acoes"><li><<link [[Levantar-te|Quarto]]>><</link>></li></ul>
+
+
+:: FimDeSemana [pausas nobr] {"position": "550,1380", "size": "100,100"}
+<<set _r to setup.do("weekend")>>
+<h1>Segunda-feira</h1>
+<p>Dois dias sem senhas nem carimbos. Dormiste a horas, lavaste a roupa, deixaste o corpo assentar. O que ficou por fazer continua à espera.</p>
+<<if _r.mal>><p>Nem todas as noites deram para pagar. Numa delas dormiste no sofá da receção.</p><</if>>
+<<if _r.pago>><p class="nota">Pagaste <<= setup.eur(_r.pago)>> pelas noites.</p><</if>>
 <<include "Avisos">>
 <ul class="acoes"><li><<link [[Levantar-te|Quarto]]>><</link>></li></ul>
 

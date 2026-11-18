@@ -396,6 +396,21 @@ S.sleep = function (V) {
   return res;
 };
 
+/* Ao fim de semana não há balcões: pode ficar-se em casa até segunda, pagando as noites como sempre. */
+S.canWeekend = function (V) {
+  return S.weekday(V.t) >= 5 && S.minuteOfDay(V.t) >= 8 * H && !!S.PLACES[V.here].casa && V.here === V.home;
+};
+S.weekendNoites = function (V) { return 7 - S.weekday(V.t); };
+S.weekend = function (V) {
+  var res = { noites: 0, pago: 0, mal: false };
+  while (S.weekday(V.t) >= 5) {
+    var n = S.sleep(V);
+    res.noites++; res.pago += n.pago; res.mal = res.mal || n.mal;
+    if (S.weekday(V.t) >= 5) S.advance(V, 12 * H);
+  }
+  return res;
+};
+
 /* ---------- Balcões ---------- */
 S.takeTicket = function (V) {
   var p = S.PLACES[V.here];
