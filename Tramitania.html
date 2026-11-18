@@ -476,7 +476,7 @@ S.DOCS = {
 
 /* ---------- Equilíbrio (afinar aqui) ---------- */
 S.CFG = {
-  visto: 45, prazoFase3: 40,
+  visto: 40, prazoFase3: 32,
   dinheiro: 600, stress: 10,
   viagem: 30, viagemStress: 3,
   filaMin: 30, filaMax: 120, filaStressHora: 6,
@@ -1144,7 +1144,7 @@ if (typeof Config !== "undefined") {
   &lt;div class=&quot;logo&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
   &lt;p class=&quot;eyebrow&quot;&gt;Um jogo sobre burocracia e stress&lt;/p&gt;
   &lt;h1 class=&quot;titulo&quot;&gt;Tramitânia&lt;/h1&gt;
-  &lt;p class=&quot;lede&quot;&gt;Chegas a Burgo, capital da República da Tramitânia, com uma mala, um passaporte e um visto que expira em 45 dias. Para ficar, precisas de uma Autorização de Residência. Para a Autorização, precisas de documentos. Para os documentos, precisas de outros documentos.&lt;/p&gt;
+  &lt;p class=&quot;lede&quot;&gt;Chegas a Burgo, capital da República da Tramitânia, com uma mala, um passaporte e um visto que expira em &lt;&lt;= setup.CFG.visto&gt;&gt; dias. Para ficar, precisas de uma Autorização de Residência. Para a Autorização, precisas de documentos. Para os documentos, precisas de outros documentos.&lt;/p&gt;
   &lt;p class=&quot;lede&quot;&gt;Tens três recursos: &lt;b&gt;tempo&lt;/b&gt;, &lt;b&gt;dinheiro&lt;/b&gt; e &lt;b&gt;calma&lt;/b&gt;. Os três acabam.&lt;/p&gt;
   &lt;p class=&quot;nota&quot;&gt;Uma partida completa demora entre hora e meia e duas horas. O jogo guarda-se no browser: usa o menu «Saves» na barra lateral para continuar mais tarde.&lt;/p&gt;
   &lt;div class=&quot;acoes-grandes&quot;&gt;
@@ -1177,7 +1177,7 @@ if (typeof Config !== "undefined") {
 &lt;p&gt;O autocarro para num terminal cinzento. Chove aquela chuva miúda que não molha mas cansa. Tens &lt;&lt;= setup.eur($money)&gt;&gt; na carteira, uma mala com o passaporte, a certidão de nascimento e o visto, e uma morada escrita num papel: &lt;i&gt;Pensão Estrela, Rua dos Requerentes, 12&lt;/i&gt;.&lt;/p&gt;
 &lt;div class=&quot;documento&quot;&gt;
   &lt;p class=&quot;impresso-cab&quot;&gt;VISTO DE PROCURA DE TRABALHO&lt;/p&gt;
-  &lt;p&gt;Titular: &lt;b&gt;&lt;&lt;= $player.nome&gt;&gt;&lt;/b&gt;. Válido por &lt;b&gt;45 dias&lt;/b&gt;. O titular deve requerer &lt;b&gt;Autorização de Residência&lt;/b&gt; na &lt;b&gt;Agência de Migração&lt;/b&gt; antes do termo deste visto. Processos incompletos não serão aceites.&lt;/p&gt;
+  &lt;p&gt;Titular: &lt;b&gt;&lt;&lt;= $player.nome&gt;&gt;&lt;/b&gt;. Válido por &lt;b&gt;&lt;&lt;= setup.CFG.visto&gt;&gt; dias&lt;/b&gt;. O titular deve requerer &lt;b&gt;Autorização de Residência&lt;/b&gt; na &lt;b&gt;Agência de Migração&lt;/b&gt; antes do termo deste visto. Processos incompletos não serão aceites.&lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;Antes de vir, o Sr. Bento, dono de uma padaria em Burgo, prometeu-te trabalho «assim que tiveres os papéis». Ninguém te disse que papéis.&lt;/p&gt;
 &lt;p&gt;Na pensão, uma senhora de óculos na ponta do nariz levanta os olhos das palavras cruzadas.&lt;/p&gt;
@@ -1599,7 +1599,7 @@ if (typeof Config !== "undefined") {
 &lt;h1&gt;A vida acontece&lt;/h1&gt;
 &lt;p&gt;A Autorização de Residência ficou pendurada na parede durante uma semana, até teres vergonha e a guardares numa pasta.&lt;/p&gt;
 &lt;p&gt;Depois, a vida aconteceu. O Sr. Bento deu-te a chave da padaria. O Sr. Joaquim morreu num inverno e a D. Rosa ainda guarda o lugar dele. A Dona Fátima reformou-se e foi viver para a terra. Renovaste o passaporte. Juntaste algum dinheiro. Aprendeste a dizer «deferido» sem sotaque.&lt;/p&gt;
-&lt;p&gt;Hoje chegou uma carta da Agência de Migração: a tua Autorização de Residência expira em &lt;b&gt;40 dias&lt;/b&gt;. Ou a renovas, com tudo de novo, ou pedes de vez a &lt;b&gt;cidadania&lt;/b&gt; na Conservatória do Registo Civil.&lt;/p&gt;
+&lt;p&gt;Hoje chegou uma carta da Agência de Migração: a tua Autorização de Residência expira em &lt;b&gt;&lt;&lt;= setup.CFG.prazoFase3&gt;&gt; dias&lt;/b&gt;. Ou a renovas, com tudo de novo, ou pedes de vez a &lt;b&gt;cidadania&lt;/b&gt; na Conservatória do Registo Civil.&lt;/p&gt;
 &lt;p class=&quot;nota&quot;&gt;Os documentos com validade caducaram todos. Os números permanentes (NIF, NISS, Utente, Cartão Único) mantêm-se. As fotografias de há cinco anos já não servem.&lt;/p&gt;
 &lt;ul class=&quot;acoes&quot;&gt;&lt;li&gt;&lt;&lt;link [[Começar a última corrida|Local]]&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;/li&gt;&lt;/ul&gt;</tw-passagedata><tw-passagedata pid="37" name="BlocoNotas" tags="sistema nobr" position="400,100" size="100,100">&lt;&lt;set _V to State.variables&gt;&gt;
 &lt;&lt;set _ordem to { falta: 0, expirado: 1, espera: 2, tem: 3 }&gt;&gt;
@@ -1628,7 +1628,7 @@ if (typeof Config !== "undefined") {
 &lt;&lt;set _esp to Object.keys($pending)&gt;&gt;
 &lt;&lt;if _esp.length &gt; 0&gt;&gt;&lt;p&gt;À espera:&lt;/p&gt;&lt;ul class=&quot;pasta&quot;&gt;&lt;&lt;for _id range _esp&gt;&gt;&lt;li&gt;&lt;&lt;= setup.DOCS[_id].n&gt;&gt; &lt;span class=&quot;estado&quot;&gt;&lt;&lt;= setup.status(_V, _id).txt&gt;&gt;&lt;/span&gt;&lt;/li&gt;&lt;&lt;/for&gt;&gt;&lt;/ul&gt;&lt;&lt;/if&gt;&gt;
 &lt;&lt;set _exp to Object.keys($inv).filter(function (id) { return setup.status(_V, id).k is &quot;expirado&quot;; })&gt;&gt;
-&lt;&lt;if _exp.length &gt; 0&gt;&gt;&lt;p&gt;Caducados (não servem):&lt;/p&gt;&lt;ul class=&quot;pasta caducados&quot;&gt;&lt;&lt;for _id range _exp&gt;&gt;&lt;li&gt;&lt;&lt;= setup.DOCS[_id].n&gt;&gt;&lt;/li&gt;&lt;&lt;/for&gt;&gt;&lt;/ul&gt;&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="39" name="Ajuda" tags="sistema nobr" position="700,100" size="100,100">&lt;p&gt;&lt;b&gt;Objetivo.&lt;/b&gt; Obter a Autorização de Residência antes de o visto expirar (45 dias). Depois de um salto de cinco anos, obter a Certidão de Cidadania em 40 dias.&lt;/p&gt;
+&lt;&lt;if _exp.length &gt; 0&gt;&gt;&lt;p&gt;Caducados (não servem):&lt;/p&gt;&lt;ul class=&quot;pasta caducados&quot;&gt;&lt;&lt;for _id range _exp&gt;&gt;&lt;li&gt;&lt;&lt;= setup.DOCS[_id].n&gt;&gt;&lt;/li&gt;&lt;&lt;/for&gt;&gt;&lt;/ul&gt;&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="39" name="Ajuda" tags="sistema nobr" position="700,100" size="100,100">&lt;p&gt;&lt;b&gt;Objetivo.&lt;/b&gt; Obter a Autorização de Residência antes de o visto expirar (&lt;&lt;= setup.CFG.visto&gt;&gt; dias). Depois de um salto de cinco anos, obter a Certidão de Cidadania em &lt;&lt;= setup.CFG.prazoFase3&gt;&gt; dias.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Documentos.&lt;/b&gt; Cada documento pede outros. Os funcionários só dizem &lt;b&gt;um&lt;/b&gt; documento em falta de cada vez, e uma senha só dá para um assunto. Alguns documentos caducam; outros demoram dias a ficar prontos.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Formulários.&lt;/b&gt; Em cada pedido escreves os teus dados. Têm de ser iguais aos da ficha inicial. O Cartão Único preenche-os por ti.&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Stress.&lt;/b&gt; Sobe com filas, deslocações e recusas. Com stress alto, os funcionários atendem pior e o sono descansa menos. Aos 100, o jogo acaba. Baixa-o a dormir, respirar, passear, ligar à família, tomar café ou ir a uma consulta de psicologia. Cada pausa custa tempo.&lt;/p&gt;

@@ -29,7 +29,7 @@ function unit() {
   assert.deepStrictEqual(Object.values(S.PLACES).filter(p => p.ambiente && !S.SOM.faixas[p.ambiente]), [], "há ambientes sem faixa");
   assert.strictEqual(S.dayLabel(V), "Dia 1 · segunda");
   assert.strictEqual(S.clock(V.t), "08:00");
-  assert.strictEqual(S.daysLeft(V), 45);
+  assert.strictEqual(S.daysLeft(V), 40);
   assert(V.known.autorizacao && S.hasValid(V, "passaporte") && S.hasValid(V, "visto"));
 
   // formulário: dados diferentes são recusados, ignorando maiúsculas e espaços
@@ -82,7 +82,7 @@ function unit() {
   const wd = S.weekday(V5.t); S.interlude(V5);
   assert(S.hasValid(V5, "nif") && S.hasValid(V5, "niss") && !V5.inv.atestado && !V5.inv.decl_fin);
   assert.strictEqual(S.weekday(V5.t), wd); assert.strictEqual(S.dayLabel(V5), "Dia 1 · " + ["segunda","terça","quarta","quinta","sexta","sábado","domingo"][wd]);
-  assert(!S.hasValid(V5, "fotos")); assert.strictEqual(S.daysLeft(V5), 40);
+  assert(!S.hasValid(V5, "fotos")); assert.strictEqual(S.daysLeft(V5), 32);
   console.log("testes unitários: OK");
 }
 
@@ -166,6 +166,7 @@ function play(seed, careful, realista) {
 }
 
 function sim(n, careful, realista) {
+  const { visto, prazoFase3 } = load().CFG;
   const res = [];
   for (let i = 0; i < n; i++) res.push(play(1000 + i, careful, realista));
   const by = {}; res.forEach(r => by[r.fim] = (by[r.fim] || 0) + 1);
@@ -174,8 +175,8 @@ function sim(n, careful, realista) {
   const all12 = res.filter(r => r.dias12);
   console.log(`\n${realista ? "[realista] " : "[conhece o grafo] "}${careful ? "Robô cuidadoso (gere o stress)" : "Robô apressado (nunca faz pausas)"} — ${n} partidas`);
   console.log("  desfechos:", JSON.stringify(by));
-  console.log("  dias até à Autorização (de 45):", avg(all12, "dias12"), " máx:", all12.length ? Math.max(...all12.map(r => r.dias12)) : "-");
-  console.log("  dias na fase 3 (de 40):", avg(wins, "dias3"), " máx:", wins.length ? Math.max(...wins.map(r => r.dias3)) : "-");
+  console.log(`  dias até à Autorização (de ${visto}):`, avg(all12, "dias12"), " máx:", all12.length ? Math.max(...all12.map(r => r.dias12)) : "-");
+  console.log(`  dias na fase 3 (de ${prazoFase3}):`, avg(wins, "dias3"), " máx:", wins.length ? Math.max(...wins.map(r => r.dias3)) : "-");
   console.log("  pedidos ao balcão (média):", avg(res, "pedidos"), " ações:", avg(res, "acoes"));
   console.log("  dinheiro mínimo (média):", avg(res, "minMoney"), " pior:", Math.min(...res.map(r => r.minMoney)));
   console.log("  stress máximo (média):", avg(res, "maxStress"));
