@@ -68,6 +68,12 @@ S.iconeUrl = function (nome) {
   return "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="' + S.ICONES[nome] + '"/></svg>');
 };
 
+/* Ilustrações: passagens Twine.image «imagens/<nome>.webp», originais em imagens/. */
+S.imagem = function (nome) {
+  var passagem = "imagens/" + nome + ".webp";
+  return Story.has(passagem) ? Story.get(passagem).text.trim() : "";
+};
+
 /* ---------- Som ----------
    Cada faixa toca a passagem Twine.audio «audio/<faixa>.mp3», original em audio/ (ver CREDITOS.md).
    O tema toca sempre; o ambiente segue PLACES[$here].ambiente, exceto nas passagens com a tag «fora»;
