@@ -187,19 +187,21 @@ html[data-outlines] .campo input:focus, html[data-outlines] .campo select:focus 
 #ui-dialog-body input[type=range]::-moz-range-thumb { background: var(--ink); border-color: var(--ink); }
 .caderno-notas { background: #fdf6c9; border: 1px solid #e3d98f; padding: 10px 14px; margin-bottom: 1em; transform: rotate(-.4deg); }
 .mao { font-family: var(--f-hand); font-size: 1.35em; color: #2a3a6a; margin: .2em 0; line-height: 1.2; }
-.fichas { display: grid; gap: 8px; }
-.ficha { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 3px; padding: 8px 12px; background: var(--paper); }
+.fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.ficha { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 3px; padding: 6px 10px; background: var(--paper); font-size: 13px; line-height: 1.3; }
 .ficha-falta { border-left-color: var(--stamp); }
 .ficha-expirado { border-left-color: var(--warn); }
 .ficha-espera { border-left-color: var(--accent); }
 .ficha-tem { border-left-color: var(--ok); opacity: .8; }
-.ficha-cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.ficha-local { font-size: .85em; color: var(--muted); }
+.ficha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ficha-local { display: flex; justify-content: space-between; gap: 10px; font-size: .85em; color: var(--muted); }
 .estado { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
-.reqs { margin: 6px 0 0; padding-left: 1.2em; font-size: .9em; }
-.reqs li.ok { color: var(--ok); }
-.reqs li.ok::marker { content: "✓ "; }
-.reqs li.nok::marker { content: "✗ "; color: var(--stamp); }
+.reqs { display: flex; flex-wrap: wrap; gap: 3px 6px; margin: 4px 0 0; padding: 0; list-style: none; font-size: .9em; }
+.reqs li { padding: 1px 6px; border: 1px solid var(--rule); border-radius: 3px; }
+.reqs li.ok { color: var(--ok); border-color: var(--ok); }
+.reqs li.ok::before { content: "✓ "; }
+.reqs li.nok { color: var(--stamp); border-color: var(--stamp); }
+.reqs li.nok::before { content: "✗ "; }
 .pasta { padding-left: 1.2em; }
 .pasta li { margin: 3px 0; }
 .caducados { color: var(--muted); text-decoration: line-through; }

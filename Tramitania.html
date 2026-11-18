@@ -293,19 +293,21 @@ html[data-outlines] .campo input:focus, html[data-outlines] .campo select:focus 
 #ui-dialog-body input[type=range]::-moz-range-thumb { background: var(--ink); border-color: var(--ink); }
 .caderno-notas { background: #fdf6c9; border: 1px solid #e3d98f; padding: 10px 14px; margin-bottom: 1em; transform: rotate(-.4deg); }
 .mao { font-family: var(--f-hand); font-size: 1.35em; color: #2a3a6a; margin: .2em 0; line-height: 1.2; }
-.fichas { display: grid; gap: 8px; }
-.ficha { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 3px; padding: 8px 12px; background: var(--paper); }
+.fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.ficha { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 3px; padding: 6px 10px; background: var(--paper); font-size: 13px; line-height: 1.3; }
 .ficha-falta { border-left-color: var(--stamp); }
 .ficha-expirado { border-left-color: var(--warn); }
 .ficha-espera { border-left-color: var(--accent); }
 .ficha-tem { border-left-color: var(--ok); opacity: .8; }
-.ficha-cab { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.ficha-local { font-size: .85em; color: var(--muted); }
+.ficha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ficha-local { display: flex; justify-content: space-between; gap: 10px; font-size: .85em; color: var(--muted); }
 .estado { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
-.reqs { margin: 6px 0 0; padding-left: 1.2em; font-size: .9em; }
-.reqs li.ok { color: var(--ok); }
-.reqs li.ok::marker { content: "✓ "; }
-.reqs li.nok::marker { content: "✗ "; color: var(--stamp); }
+.reqs { display: flex; flex-wrap: wrap; gap: 3px 6px; margin: 4px 0 0; padding: 0; list-style: none; font-size: .9em; }
+.reqs li { padding: 1px 6px; border: 1px solid var(--rule); border-radius: 3px; }
+.reqs li.ok { color: var(--ok); border-color: var(--ok); }
+.reqs li.ok::before { content: "✓ "; }
+.reqs li.nok { color: var(--stamp); border-color: var(--stamp); }
+.reqs li.nok::before { content: "✗ "; }
 .pasta { padding-left: 1.2em; }
 .pasta li { margin: 3px 0; }
 .caducados { color: var(--muted); text-decoration: line-through; }
@@ -996,6 +998,43 @@ S.status = function (V, id) {
   return { k: "tem", txt: "tens" };
 };
 
+/* ---------- Bloco de notas ---------- */
+/* Lembretes à mão: cada um só vale enquanto a situação durar. Mostram-se os três
+   primeiros que se aplicam, por isso o mais urgente empurra o resto para fora. */
+S.LEMBRETES = [
+  { se: function (V) { return V.phase === 3 && S.day(V.t) - V.dayBase < 3; },
+    txt: "Cinco anos depois, outra vez do princípio. Desta vez já sei o caminho." },
+  { se: function (V) { return S.daysLeft(V) <= 7; },
+    txt: function (V) { return "Faltam " + S.daysLeft(V) + " dias. Já não há margem para enganos."; } },
+  { se: function (V) { return V.stress >= 70; },
+    txt: "Respira: 4 a inspirar, 4 a segurar, 4 a expirar, 4 a segurar." },
+  { se: function (V) { return !S.hasValid(V, "nif"); },
+    txt: "Primeiro o NIF, nas Finanças. Sem NIF não existo." },
+  { se: function (V) { return !!V.flags.presoBanco || !!V.flags.presoNiss; },
+    txt: "Isto anda em círculo. Perguntar a quem já passou por aqui." },
+  { se: function (V) { return S.caducados(V).length > 0; },
+    txt: function (V) { return "Caducou: " + S.DOCS[S.caducados(V)[0]].n + ". Tratar outra vez."; } },
+  { se: function (V) { return V.money < 30; },
+    txt: "Dinheiro curto. Há biscates na padaria de manhã." },
+  { se: function (V) { return S.weekday(V.t) >= 5; },
+    txt: "Fim de semana: os balcões estão fechados. Hoje só dá para tratar de mim." },
+  { se: function (V) { return S.minuteOfDay(V.t) >= 17 * H; },
+    txt: "Já passa das cinco. O que não ficar feito hoje fica para amanhã de manhã." },
+  { se: function (V) { return V.phase === 3 && !S.hasValid(V, "exame"); },
+    txt: "O exame de língua não se despacha com papel. Estudar." },
+  { se: function (V) { return V.stats.recusas >= 3; },
+    txt: "Eles só dizem UMA coisa que falta de cada vez. Apontar tudo." },
+  { se: function () { return true; },
+    txt: "Perguntar em cada balcão que documentos se tratam ali." }
+];
+S.lembretes = function (V) {
+  return S.LEMBRETES.filter(function (l) { return l.se(V); }).slice(0, 3)
+    .map(function (l) { return typeof l.txt === "function" ? l.txt(V) : l.txt; });
+};
+S.caducados = function (V) {
+  return Object.keys(V.inv).filter(function (id) { return !S.hasValid(V, id) && !V.pending[id]; });
+};
+
 /* ---------- Integração com o SugarCube ---------- */
 if (typeof Config !== "undefined") {
   Config.history.maxStates = 1;          // na burocracia não há «voltar atrás»
@@ -1532,10 +1571,7 @@ if (typeof Config !== "undefined") {
 &lt;&lt;set _ordem to { falta: 0, expirado: 1, espera: 2, tem: 3 }&gt;&gt;
 &lt;&lt;set _ids to Object.keys(setup.DOCS).filter(function (id) { return _V.known[id] &amp;&amp; setup.DOCS[id].f &gt; 0; }).sort(function (a, b) { return _ordem[setup.status(_V, a).k] - _ordem[setup.status(_V, b).k]; })&gt;&gt;
 &lt;div class=&quot;caderno-notas&quot;&gt;
-  &lt;p class=&quot;mao&quot;&gt;Primeiro o NIF, nas Finanças. Sem NIF não existes.&lt;/p&gt;
-  &lt;p class=&quot;mao&quot;&gt;Eles só dizem UMA coisa que falta de cada vez. Aponta tudo.&lt;/p&gt;
-  &lt;p class=&quot;mao&quot;&gt;Quando tudo andar em círculo, pergunta a quem já passou por isso.&lt;/p&gt;
-  &lt;p class=&quot;mao&quot;&gt;Respira: 4 a inspirar, 4 a segurar, 4 a expirar, 4 a segurar.&lt;/p&gt;
+&lt;&lt;for _l range setup.lembretes(_V)&gt;&gt;&lt;p class=&quot;mao&quot;&gt;&lt;&lt;= _l&gt;&gt;&lt;/p&gt;&lt;&lt;/for&gt;&gt;
 &lt;/div&gt;
 &lt;p class=&quot;eyebrow&quot;&gt;Objetivo: &lt;&lt;= setup.DOCS[$phase &lt; 3 ? &quot;autorizacao&quot; : &quot;cidadania&quot;].n&gt;&gt;&lt;/p&gt;
 &lt;div class=&quot;fichas&quot;&gt;
@@ -1543,7 +1579,7 @@ if (typeof Config !== "undefined") {
   &lt;&lt;set _st to setup.status(_V, _id)&gt;&gt;
   &lt;div @class=&quot;&#x27;ficha ficha-&#x27; + _st.k&quot;&gt;
     &lt;div class=&quot;ficha-cab&quot;&gt;&lt;b&gt;&lt;&lt;= setup.DOCS[_id].n&gt;&gt;&lt;/b&gt;&lt;span class=&quot;estado&quot;&gt;&lt;&lt;= _st.txt&gt;&gt;&lt;/span&gt;&lt;/div&gt;
-    &lt;div class=&quot;ficha-local&quot;&gt;&lt;&lt;= setup.PLACES[setup.DOCS[_id].at].n&gt;&gt;&lt;&lt;if setup.DOCS[_id].fee&gt;&gt; · &lt;&lt;= setup.eur(setup.DOCS[_id].fee)&gt;&gt;&lt;&lt;/if&gt;&gt;&lt;/div&gt;
+    &lt;div class=&quot;ficha-local&quot;&gt;&lt;span&gt;&lt;&lt;= setup.PLACES[setup.DOCS[_id].at].n&gt;&gt;&lt;/span&gt;&lt;&lt;if setup.DOCS[_id].fee&gt;&gt;&lt;span&gt;&lt;&lt;= setup.eur(setup.DOCS[_id].fee)&gt;&gt;&lt;/span&gt;&lt;&lt;/if&gt;&gt;&lt;/div&gt;
     &lt;&lt;set _reqs to Object.keys(_V.rev[_id] || {})&gt;&gt;
     &lt;&lt;if _reqs.length &gt; 0&gt;&gt;&lt;ul class=&quot;reqs&quot;&gt;&lt;&lt;for _r range _reqs&gt;&gt;&lt;li @class=&quot;setup.hasValid(_V, _r) ? &#x27;ok&#x27; : &#x27;nok&#x27;&quot;&gt;&lt;&lt;= setup.DOCS[_r].n&gt;&gt;&lt;/li&gt;&lt;&lt;/for&gt;&gt;&lt;/ul&gt;&lt;&lt;/if&gt;&gt;
   &lt;/div&gt;

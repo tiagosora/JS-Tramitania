@@ -671,6 +671,43 @@ S.status = function (V, id) {
   return { k: "tem", txt: "tens" };
 };
 
+/* ---------- Bloco de notas ---------- */
+/* Lembretes à mão: cada um só vale enquanto a situação durar. Mostram-se os três
+   primeiros que se aplicam, por isso o mais urgente empurra o resto para fora. */
+S.LEMBRETES = [
+  { se: function (V) { return V.phase === 3 && S.day(V.t) - V.dayBase < 3; },
+    txt: "Cinco anos depois, outra vez do princípio. Desta vez já sei o caminho." },
+  { se: function (V) { return S.daysLeft(V) <= 7; },
+    txt: function (V) { return "Faltam " + S.daysLeft(V) + " dias. Já não há margem para enganos."; } },
+  { se: function (V) { return V.stress >= 70; },
+    txt: "Respira: 4 a inspirar, 4 a segurar, 4 a expirar, 4 a segurar." },
+  { se: function (V) { return !S.hasValid(V, "nif"); },
+    txt: "Primeiro o NIF, nas Finanças. Sem NIF não existo." },
+  { se: function (V) { return !!V.flags.presoBanco || !!V.flags.presoNiss; },
+    txt: "Isto anda em círculo. Perguntar a quem já passou por aqui." },
+  { se: function (V) { return S.caducados(V).length > 0; },
+    txt: function (V) { return "Caducou: " + S.DOCS[S.caducados(V)[0]].n + ". Tratar outra vez."; } },
+  { se: function (V) { return V.money < 30; },
+    txt: "Dinheiro curto. Há biscates na padaria de manhã." },
+  { se: function (V) { return S.weekday(V.t) >= 5; },
+    txt: "Fim de semana: os balcões estão fechados. Hoje só dá para tratar de mim." },
+  { se: function (V) { return S.minuteOfDay(V.t) >= 17 * H; },
+    txt: "Já passa das cinco. O que não ficar feito hoje fica para amanhã de manhã." },
+  { se: function (V) { return V.phase === 3 && !S.hasValid(V, "exame"); },
+    txt: "O exame de língua não se despacha com papel. Estudar." },
+  { se: function (V) { return V.stats.recusas >= 3; },
+    txt: "Eles só dizem UMA coisa que falta de cada vez. Apontar tudo." },
+  { se: function () { return true; },
+    txt: "Perguntar em cada balcão que documentos se tratam ali." }
+];
+S.lembretes = function (V) {
+  return S.LEMBRETES.filter(function (l) { return l.se(V); }).slice(0, 3)
+    .map(function (l) { return typeof l.txt === "function" ? l.txt(V) : l.txt; });
+};
+S.caducados = function (V) {
+  return Object.keys(V.inv).filter(function (id) { return !S.hasValid(V, id) && !V.pending[id]; });
+};
+
 /* ---------- Integração com o SugarCube ---------- */
 if (typeof Config !== "undefined") {
   Config.history.maxStates = 1;          // na burocracia não há «voltar atrás»

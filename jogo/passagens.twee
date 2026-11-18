@@ -634,10 +634,7 @@ Tramitânia
 <<set _ordem to { falta: 0, expirado: 1, espera: 2, tem: 3 }>>
 <<set _ids to Object.keys(setup.DOCS).filter(function (id) { return _V.known[id] && setup.DOCS[id].f > 0; }).sort(function (a, b) { return _ordem[setup.status(_V, a).k] - _ordem[setup.status(_V, b).k]; })>>
 <div class="caderno-notas">
-  <p class="mao">Primeiro o NIF, nas Finanças. Sem NIF não existes.</p>
-  <p class="mao">Eles só dizem UMA coisa que falta de cada vez. Aponta tudo.</p>
-  <p class="mao">Quando tudo andar em círculo, pergunta a quem já passou por isso.</p>
-  <p class="mao">Respira: 4 a inspirar, 4 a segurar, 4 a expirar, 4 a segurar.</p>
+<<for _l range setup.lembretes(_V)>><p class="mao"><<= _l>></p><</for>>
 </div>
 <p class="eyebrow">Objetivo: <<= setup.DOCS[$phase < 3 ? "autorizacao" : "cidadania"].n>></p>
 <div class="fichas">
@@ -645,7 +642,7 @@ Tramitânia
   <<set _st to setup.status(_V, _id)>>
   <div @class="'ficha ficha-' + _st.k">
     <div class="ficha-cab"><b><<= setup.DOCS[_id].n>></b><span class="estado"><<= _st.txt>></span></div>
-    <div class="ficha-local"><<= setup.PLACES[setup.DOCS[_id].at].n>><<if setup.DOCS[_id].fee>> · <<= setup.eur(setup.DOCS[_id].fee)>><</if>></div>
+    <div class="ficha-local"><span><<= setup.PLACES[setup.DOCS[_id].at].n>></span><<if setup.DOCS[_id].fee>><span><<= setup.eur(setup.DOCS[_id].fee)>></span><</if>></div>
     <<set _reqs to Object.keys(_V.rev[_id] || {})>>
     <<if _reqs.length > 0>><ul class="reqs"><<for _r range _reqs>><li @class="setup.hasValid(_V, _r) ? 'ok' : 'nok'"><<= setup.DOCS[_r].n>></li><</for>></ul><</if>>
   </div>
