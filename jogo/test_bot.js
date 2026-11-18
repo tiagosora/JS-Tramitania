@@ -2,6 +2,7 @@
 // completas com as regras reais. Uso: node test_bot.js [nPartidas]
 "use strict";
 const fs = require("fs");
+const path = require("path");
 const vm = require("vm");
 const assert = require("assert");
 
@@ -20,6 +21,12 @@ const PLAYER = { nome: "Ana Silva", idade: "29", altura: "168", civil: "Solteiro
 function unit() {
   const S = load(); S.rng = seeded(1);
   const V = S.initState({}); V.player = PLAYER;
+  const originais = ["logo", ...Object.values(S.PLACES).map(p => `icones/${p.icone}`)];
+  assert.deepStrictEqual(originais.filter(f => !fs.readFileSync(`${__dirname}/${f}.svg`, "utf8").includes(`d="${S.ICONES[path.basename(f)]}"`)), [], "há ícones diferentes dos originais");
+  const sons = Object.fromEntries([...fs.readFileSync(`${__dirname}/passagens.twee`, "utf8").matchAll(/^:: (\S+) \[Twine\.audio\].*\n(.*)$/gm)].map(m => [m[1], m[2]]));
+  assert.deepStrictEqual(Object.keys(sons).sort(), Object.keys(S.SOM.faixas).map(S.somPassagem).sort(), "faixas e passagens Twine.audio não coincidem");
+  assert.deepStrictEqual(Object.keys(sons).filter(f => sons[f] !== "data:audio/mpeg;base64," + fs.readFileSync(`${__dirname}/${f}`, "base64")), [], "há sons diferentes dos originais");
+  assert.deepStrictEqual(Object.values(S.PLACES).filter(p => p.ambiente && !S.SOM.faixas[p.ambiente]), [], "há ambientes sem faixa");
   assert.strictEqual(S.dayLabel(V), "Dia 1 · segunda");
   assert.strictEqual(S.clock(V.t), "08:00");
   assert.strictEqual(S.daysLeft(V), 45);

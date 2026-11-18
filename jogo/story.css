@@ -23,7 +23,9 @@ a:hover, .link-internal:hover, .macro-link:hover { color: var(--ink); text-decor
 
 /* Barra lateral */
 #ui-bar { background: var(--sheet); border-right: 1px solid var(--rule); color: var(--ink); }
-#ui-bar-toggle, #ui-bar-history [id|=history] { color: var(--ink); border-color: var(--rule); background: transparent; }
+#ui-bar-tray button { color: var(--ink); border-color: var(--rule); background: transparent; }
+#ui-bar-tray button:hover { background: var(--paper); border-color: var(--ink); }
+#ui-bar-tray button:disabled { color: var(--rule); border-color: var(--rule); }
 #ui-bar-tray { border-bottom: 1px solid var(--rule); }
 #story-title { font-family: var(--f-sans); font-weight: 800; letter-spacing: -.01em; }
 #story-author, #story-subtitle { color: var(--muted); }
@@ -73,7 +75,9 @@ ul.acoes li.sair { background: transparent; border-style: dashed; }
 ul.acoes li.sair a::before { content: "← "; }
 ul.acoes li.indisponivel { padding: 9px 14px; color: var(--muted); font-size: .92em; background: transparent; border-style: dotted; }
 
+.logo { aspect-ratio: 5 / 3; margin-bottom: 1em; background: currentColor; mask: var(--icone-logo) center / cover no-repeat; }
 .capa { padding-top: 2em; }
+.capa .logo { width: clamp(120px, 30vw, 220px); }
 .titulo { font-size: clamp(2.6em, 8vw, 4.4em); margin-bottom: .2em; }
 .lede { font-size: 1.1em; max-width: 34em; }
 .acoes-grandes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.4em; }
@@ -128,14 +132,16 @@ html[data-outlines] .campo input:focus, html[data-outlines] .campo select:focus 
 .portal-url { font-family: var(--f-mono); font-size: 13px; color: var(--muted); background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 12px; display: inline-block; }
 
 /* Mapa */
-.mapa { display: grid; grid-template-columns: repeat(auto-fill, minmax(15em, 1fr)); gap: 14px; margin-top: 1em; }
+.mapa { columns: 15em; column-gap: 14px; margin-top: 1em; }
+.mapa-grupo { break-inside: avoid; margin-bottom: 14px; }
 .mapa-grupo h3 { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 6px; }
 .mapa-grupo ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
-.mapa-grupo li { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; background: var(--sheet); border: 1px solid var(--rule); border-radius: 3px; padding: 6px 10px; }
-.mapa-grupo li a { text-decoration: none; color: var(--ink); }
+.mapa-grupo li { display: grid; grid-template-columns: 1.5em 1fr auto; gap: 8px; align-items: baseline; background: var(--sheet); border: 1px solid var(--rule); border-radius: 3px; padding: 6px 10px; }
+.mapa-grupo li::before { content: ""; align-self: center; height: 1.2em; background: currentColor; mask: var(--icone) center / contain no-repeat; }
+.mapa-grupo li a { text-decoration: none; color: inherit; }
 .mapa-grupo .hora { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--ok); white-space: nowrap; }
 .mapa-grupo li.fechado .hora { color: var(--stamp); }
-.mapa-grupo li.fechado a { color: var(--muted); }
+.mapa-grupo li.fechado { color: var(--muted); }
 .mapa-grupo li.aqui { border-color: var(--ink); }
 .mapa-grupo li.aqui .hora { color: var(--ink); }
 
@@ -147,10 +153,38 @@ html[data-outlines] .campo input:focus, html[data-outlines] .campo select:focus 
   @keyframes caixa { 0% { top: -8px; left: -8px; } 25% { top: -8px; left: 110px; } 50% { top: 110px; left: 110px; } 75% { top: 110px; left: -8px; } 100% { top: -8px; left: -8px; } }
 }
 
-/* Bloco de notas (diálogo) */
-#ui-dialog.caderno #ui-dialog-body, #ui-dialog-body { background: var(--sheet); color: var(--ink); }
+/* Diálogos (caderno, definições, gravações); os seletores igualam a especificidade dos do SugarCube */
+#ui-dialog-body { background: var(--sheet); color: var(--ink); border-color: var(--rule); }
 #ui-dialog-titlebar { background: var(--ink); color: var(--sheet); }
 #ui-dialog-close { color: var(--sheet); }
+#ui-dialog-body hr { background: var(--rule); }
+#ui-dialog-body.saves > :not(:first-child), #ui-dialog-body.saves tr:not(:first-child),
+#ui-dialog-body.settings div[id|=header-body]:not(:first-child) { border-color: var(--rule); }
+#ui-dialog-body.saves > h2 {
+  background: var(--paper); color: var(--muted); padding: .5em .8em;
+  font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+}
+#ui-dialog-body.saves .empty { color: var(--muted); }
+#ui-dialog-body button, #ui-dialog-body.saves #saves-list button, #ui-dialog-body.settings button[id|=setting-control] {
+  font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+  background: var(--sheet); color: var(--ink); border: 1px solid var(--ink); border-radius: 3px;
+}
+#ui-dialog-body button:disabled, #ui-dialog-body.saves #saves-list button:disabled { color: var(--rule); border-color: var(--rule); }
+#ui-dialog-body button:not(:disabled):hover, #ui-dialog-body.saves #saves-list button:not(:disabled):hover,
+#ui-dialog-body.settings button[id|=setting-control]:hover { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+#ui-dialog-body.saves #saves-list button.load:not(:disabled), #ui-dialog-body.saves #saves-list button.load:not(:disabled):hover,
+#ui-dialog-body.settings button[id|=setting-control].enabled, #ui-dialog-body.settings button[id|=setting-control].enabled:hover {
+  background: var(--ok); color: var(--sheet); border-color: var(--ok);
+}
+#ui-dialog-body.saves #saves-list button.delete:not(:disabled), #ui-dialog-body.saves #saves-list button.delete:not(:disabled):hover,
+#ui-dialog-body.saves button[id=saves-clear]:not(:disabled), #ui-dialog-body.saves button[id=saves-clear]:not(:disabled):hover {
+  background: var(--stamp); color: var(--sheet); border-color: var(--stamp);
+}
+#ui-dialog-body button:not(:disabled):is(.load, .delete, .enabled, [id=saves-clear]):hover { filter: brightness(1.2); }
+#ui-dialog-body input[type=range]::-webkit-slider-runnable-track { background: var(--paper); border-color: var(--rule); }
+#ui-dialog-body input[type=range]::-moz-range-track { background: var(--paper); border-color: var(--rule); }
+#ui-dialog-body input[type=range]::-webkit-slider-thumb { background: var(--ink); border-color: var(--ink); }
+#ui-dialog-body input[type=range]::-moz-range-thumb { background: var(--ink); border-color: var(--ink); }
 .caderno-notas { background: #fdf6c9; border: 1px solid #e3d98f; padding: 10px 14px; margin-bottom: 1em; transform: rotate(-.4deg); }
 .mao { font-family: var(--f-hand); font-size: 1.35em; color: #2a3a6a; margin: .2em 0; line-height: 1.2; }
 .fichas { display: grid; gap: 8px; }

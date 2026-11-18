@@ -12,6 +12,7 @@ Onde está cada coisa no Twine:
 - **Jogar ou testar:** o botão **Play** mostra o jogo como os jogadores o veem. O botão **Test** liga o modo de depuração do SugarCube, que mostra os nomes das macros (`<<if>>`, `<<link>>`) por cima do texto; serve para procurar erros, não para jogar.
 - **Regras, documentos e números:** Story → Details → **JavaScript**. Os documentos estão em `S.DOCS`, os locais em `S.PLACES` e o equilíbrio (prazos, stress, preços) em `S.CFG`.
 - **Aspeto visual:** Story → Details → **Stylesheet**.
+- **Som:** as faixas são as passagens `audio/….mp3` (etiqueta `Twine.audio`, originais em `audio/`), configuradas em `S.SOM`. O ambiente de cada local é o campo `ambiente` de `S.PLACES`; a etiqueta `fora` desliga-o (Cidade, desfechos) e a etiqueta `conversa` toca o «hmm» ao entrar numa conversa.
 
 ## 2. Depois de editar no Twine: correr os testes
 Com o Twine aberto ou fechado (o Twine grava sozinho), num terminal aberto em qualquer pasta:
